@@ -9,6 +9,8 @@
 import UIKit
 
 class ViewController: UIViewController {
+    var isDeterminedAnswer = false
+    var result : Double?
     var answer : [Double] = [1]
     var index = 0
     var freshNumIndex : [Bool] = [true]
@@ -105,6 +107,7 @@ class ViewController: UIViewController {
         
         printProcess()
         processView.text = "0"
+        isDeterminedAnswer = false
     }
     //MARK: - <#func printProcess
     func printProcess(){
@@ -112,16 +115,30 @@ class ViewController: UIViewController {
     }
     //MARK: - <#func ansPressed
     @IBAction func ansPressed(_ sender: UIButton) {
-        
+        calculateAns()
     }
     
     func calculateAns(){
-        for i in 0 ... index {
+        for i in 0 ... index-1 {
+            print("check1")
             if muldiOperIndex[i]{
-                if calc.operationStorage[i] == "x"{
+                print("check1.5")
+                if calc.operationStorage[i] == "x" && (freshNumIndex[i] && freshNumIndex[i+1]){
+                    print("check2")
                     answer[i] = Double(calc.numWordIntStorage[i]) * Double(calc.numWordIntStorage[i+1])
-                }else if calc.operationStorage[i] == "/"{
+                    print("check3")
+                    freshNumIndex[i] = false ; freshNumIndex[i+1] = false
+                    print("check4")
+                }else if calc.operationStorage[i] == "x" && !(freshNumIndex[i]){
+                     answer[i] = answer[i-1] * Double(calc.numWordIntStorage[i+1])
+                    freshNumIndex[i] = false ; freshNumIndex[i+1] = false
+                }
+                else if calc.operationStorage[i] == "/" && (freshNumIndex[i] && freshNumIndex[i+1]){
                     answer[i] = Double(calc.numWordIntStorage[i]) / Double(calc.numWordIntStorage[i+1])
+                    freshNumIndex[i] = false ; freshNumIndex[i+1] = false
+                }else if calc.operationStorage[i] == "/" && !(freshNumIndex[i]){
+                    answer[i] = answer[i-1] / Double(calc.numWordIntStorage[i+1])
+                    freshNumIndex[i] = false ; freshNumIndex[i+1] = false
                 }
             } else {
                 if calc.operationStorage[i] == "+"{
@@ -132,10 +149,15 @@ class ViewController: UIViewController {
             }
             
         }
-        
+//        for i in 0 ... index-1 {
+//            if !isDeterminedAnswer {
+//            if calc.operationStorage[index-1-i] == "+" || calc.operationStorage[index-1-i] == "-"{
+//                result = answer[index-1-i]; isDeterminedAnswer = true
+//            }else {
+//                result = answer[index-1]; isDeterminedAnswer = true
+//                }
+//            }
+//        }
+//        print(answer[index-1])
     }
 }
-
-
-
-
