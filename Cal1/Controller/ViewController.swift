@@ -39,6 +39,7 @@ class ViewController: UIViewController {
         
         processView.isUserInteractionEnabled = false
         resultView.isUserInteractionEnabled = false
+         processView.text = "0"
     }
     //MARK: - <#func numberPressed
     @IBAction func numberPressed(_ sender: UIButton){
@@ -47,6 +48,7 @@ class ViewController: UIViewController {
             let myOptional = sender.currentTitle
             if let safeOptional = myOptional{
                  numWordStringStorage[index] += String(safeOptional)
+                calc.processString += String(safeOptional)
             }
             calc.numWordIntStorage[index] = Int(numWordStringStorage[index])!
             print("numWordStringStorage[\(index)] :\(numWordStringStorage[index])")
@@ -65,6 +67,7 @@ class ViewController: UIViewController {
             default: print("other buttons pressed")
             calc.operationStorage[index] = "operation button error"
             }
+            calc.processString += calc.operationStorage[index]
             print("operString = \(calc.operationStorage[index])")
       
             print("calc.operationStorage[index] : \(calc.operationStorage[index])")
@@ -90,25 +93,17 @@ class ViewController: UIViewController {
         calc.processString = ""
         k = 0
         printProcess()
+        processView.text = "0"
     }
     //MARK: - <#func equalPressed
     @IBAction func equalPressed(_ sender: UIButton) {
     }
     //MARK: - <#func printProcess
     func printProcess(){
-        for j in 0 ... index{
-            calc.processStringArray[j] = numWordStringStorage[j] + calc.operationStorage[j]
-            print("calc.processStringArray[\(j)] : \(calc.processStringArray[j])")
-            
-
-            if isOperatorPressed {
-                calc.processString += calc.processStringArray[k]
-                isOperatorPressed = false
-                k += 1
-            }
-            
+        
+            processView.text = calc.processString
         }
         
-        processView.text = calc.processString
+        
     }
-}
+
