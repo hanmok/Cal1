@@ -14,7 +14,7 @@ class ViewController: UIViewController {
     var calculator = CalculatorBasic()
     var operString : String?
     //    var isoperationPressed : Bool?
-    var numberStringStorage = Array(repeating: "", count: 10)
+    var numWordStringStorage = [""]
     //save a number with several digit in the form of String
     
     @IBOutlet weak var processView: UITextView!
@@ -35,43 +35,25 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
-        //        num7.backgroundColor = .clear
-        //        num7.layer.borderWidth = 1
-        //        num7.layer.borderColor = UIColor.black.cgColor
-        
-        //        processView.textInputMode = false
+       
         processView.isUserInteractionEnabled = false
         resultView.isUserInteractionEnabled = false
     }
     
     @IBAction func numberPressed(_ sender: UIButton) {
-        
-        
-        //        print(sender.currentTitle!)
         if calculator.numberIntStorage[index] <= Int(1e18){
-            //prevents app from crushing because of limit of Int number
+            //prevents app from crushing of limit of Int number
             let myOptional = sender.currentTitle
             if let safeOptional = myOptional{
-                let oneDigitNumber = Int(safeOptional)
-                //a number (0~9) : inputNumber
-                print("oneDigitNumber : \(oneDigitNumber!)")
-                calculator.numberStorage[index].append(oneDigitNumber!)
+                calculator.numSyllStorage.append(Int(safeOptional)!)
             }
             
-            print("numberStorage : \(calculator.numberStorage[index])")
-            let numOfStorageElement = calculator.numberStorage[index].count
-            print("numberOfStorageElement : \(numOfStorageElement)")
+            print("numSyllStorage : \(calculator.numSyllStorage[i])")
             
-            print("p1 : numberStringStorage[index] : \(numberStringStorage[index])")
-             print("p1 : numberStringStorage[index] : \(numberStringStorage[index])")
-            print("calculator.numberStorage[index][i+1] : \(calculator.numberStorage[index][i+1])")
+            numWordStringStorage[index] += String(calculator.numSyllStorage[i+1])
+            print("numWordStringStorage :\(numWordStringStorage)")
             
-            numberStringStorage[index] += String(calculator.numberStorage[index][i+1])
-            print("numberStringStorage :\(numberStringStorage)")
-            
-            calculator.numberIntStorage[index] = Int(numberStringStorage[index])!
-            print("numberStringStorage[0] : \(numberStringStorage[0])")
+            calculator.numberIntStorage[index] = Int(numWordStringStorage[index])!
             printProcess()
         }
         i += 1
@@ -104,33 +86,32 @@ class ViewController: UIViewController {
         printProcess()
         index += 1
         i = 0
+        numWordStringStorage.append("")
     }
     
     @IBAction func clearPressed(_ sender: UIButton) {
         i = 0
         index = 0
         calculator.operation = ""
-        calculator.numberStorage = [[0],[0],[0],[0],[0],[0],[0],[0],[0]]
+        calculator.numSyllStorage = [0]
         calculator.numberIntStorage = Array(repeating: 0, count: 10)
         calculator.operationStorage = Array(repeating: "", count: 10)
         calculator.processString = ""
         calculator.processStringArray = Array(repeating: "", count: 10)
-        numberStringStorage = Array(repeating: "", count: 10)
+        numWordStringStorage = Array(repeating: "", count: 10)
         printProcess()
         
     }
     
     @IBAction func equalPressed(_ sender: UIButton) {
     }
-    
     func printProcess(){
         for j in 0 ... index{
-            calculator.processStringArray[j] = numberStringStorage[j] + calculator.operationStorage[j]
+            calculator.processStringArray[j] = numWordStringStorage[j] + calculator.operationStorage[j]
             print("calculator.processStringArray[\(j)] : \(calculator.processStringArray[j])")
        
             calculator.processString = calculator.processStringArray[0] + calculator.processStringArray[1] + calculator.processStringArray[2]
         }
-       
                    processView.text = calculator.processString
     }
 }

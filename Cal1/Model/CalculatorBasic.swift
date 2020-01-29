@@ -9,12 +9,11 @@
 import UIKit
 
 struct CalculatorBasic{
-//    var num : Double?
+
     var operation : String?
     //operation it will perform
-//    var numberInput : Double?
-    //the number printed in the process console
-    var numberStorage = [[0],[0],[0],[0],[0],[0],[0],[0],[0]]
+    var numSyllStorage = [0]
+    //enough to cover all with 1D array 
     // == currentTitle( collection of one bit of numbers)
     //used to connect each digit numbers
     var numberIntStorage = Array(repeating: 0, count: 10)
