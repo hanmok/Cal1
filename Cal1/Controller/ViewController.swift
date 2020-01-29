@@ -9,7 +9,7 @@
 import UIKit
 
 class ViewController: UIViewController {
-    var k = 0
+
     var index = 0
     var calc = CalculatorBasic()
     var operString : String?
@@ -91,16 +91,17 @@ class ViewController: UIViewController {
         calc.processStringArray = [""]
         numWordStringStorage = [""]
         calc.processString = ""
-        k = 0
+      
         printProcess()
         processView.text = "0"
     }
-    //MARK: - <#func equalPressed
-    @IBAction func equalPressed(_ sender: UIButton) {
+    //MARK: - <#func ansPressed
+    
+    @IBAction func ansPressed(_ sender: UIButton) {
+        
     }
     //MARK: - <#func printProcess
     func printProcess(){
-        
             processView.text = calc.processString
         }
         

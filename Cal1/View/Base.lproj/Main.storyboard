@@ -215,7 +215,7 @@
                                                 <fontDescription key="fontDescription" name="ChalkboardSE-Regular" family="Chalkboard SE" pointSize="50"/>
                                                 <state key="normal" title="="/>
                                                 <connections>
-                                                    <action selector="equalPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kVV-wa-JHg"/>
+                                                    <action selector="ansPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Xpr-hi-pne"/>
                                                 </connections>
                                             </button>
                                         </subviews>
