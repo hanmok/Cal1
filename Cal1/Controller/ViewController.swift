@@ -9,13 +9,14 @@
 import UIKit
 
 class ViewController: UIViewController {
-
+    var answer : [Double] = [1]
     var index = 0
+    var freshNumIndex : [Bool] = [true]
+    var muldiOperIndex : [Bool] = [false]
     var calc = CalculatorBasic()
-    var operString : String?
     var numWordStringStorage = [""]
     var isOperatorPressed = false
-   
+    
     //save a number with several digit in the form of String
     
     @IBOutlet weak var processView: UITextView!
@@ -39,7 +40,7 @@ class ViewController: UIViewController {
         
         processView.isUserInteractionEnabled = false
         resultView.isUserInteractionEnabled = false
-         processView.text = "0"
+        processView.text = "0"
     }
     //MARK: - <#func numberPressed
     @IBAction func numberPressed(_ sender: UIButton){
@@ -47,7 +48,7 @@ class ViewController: UIViewController {
             //prevents app from crushing of limit of Int number
             let myOptional = sender.currentTitle
             if let safeOptional = myOptional{
-                 numWordStringStorage[index] += String(safeOptional)
+                numWordStringStorage[index] += String(safeOptional)
                 calc.processString += String(safeOptional)
             }
             calc.numWordIntStorage[index] = Int(numWordStringStorage[index])!
@@ -67,12 +68,22 @@ class ViewController: UIViewController {
             default: print("other buttons pressed")
             calc.operationStorage[index] = "operation button error"
             }
-            calc.processString += calc.operationStorage[index]
-            print("operString = \(calc.operationStorage[index])")
-      
-            print("calc.operationStorage[index] : \(calc.operationStorage[index])")
         }
+        if index >= 1{
+            muldiOperIndex.append(false)
+             answer.append(1)
+        }
+        if calc.operationStorage[index] == "x" || calc.operationStorage[index] == "/"{
+            muldiOperIndex[index] = true
+        }
+        print("muldiOperIndex[\(index)] : \(muldiOperIndex[index])")
+        calc.processString += calc.operationStorage[index]
         
+        
+        print("calc.operationStorage[index] : \(calc.operationStorage[index])")
+        
+       
+        freshNumIndex.append(true)
         calc.operationStorage.append("")
         calc.numWordIntStorage.append(0)
         numWordStringStorage.append("")
@@ -80,7 +91,7 @@ class ViewController: UIViewController {
         isOperatorPressed = true
         printProcess()
         index += 1
-       
+        
     }
     //MARK: - <#func clearPressed
     @IBAction func clearPressed(_ sender: UIButton) {
@@ -91,20 +102,40 @@ class ViewController: UIViewController {
         calc.processStringArray = [""]
         numWordStringStorage = [""]
         calc.processString = ""
-      
+        
         printProcess()
         processView.text = "0"
     }
+    //MARK: - <#func printProcess
+    func printProcess(){
+        processView.text = calc.processString
+    }
     //MARK: - <#func ansPressed
-    
     @IBAction func ansPressed(_ sender: UIButton) {
         
     }
-    //MARK: - <#func printProcess
-    func printProcess(){
-            processView.text = calc.processString
+    
+    func calculateAns(){
+        for i in 0 ... index {
+            if muldiOperIndex[i]{
+                if calc.operationStorage[i] == "x"{
+                    answer[i] = Double(calc.numWordIntStorage[i]) * Double(calc.numWordIntStorage[i+1])
+                }else if calc.operationStorage[i] == "/"{
+                    answer[i] = Double(calc.numWordIntStorage[i]) / Double(calc.numWordIntStorage[i+1])
+                }
+            } else {
+                if calc.operationStorage[i] == "+"{
+                    
+                }else if calc.operationStorage[i] == "-"{
+                    
+                }
+            }
+            
         }
         
-        
     }
+}
+
+
+
 
