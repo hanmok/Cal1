@@ -9,7 +9,7 @@
 import UIKit
 
 class ViewController: UIViewController {
-   
+    var k = 0
     var index = 0
     var calc = CalculatorBasic()
     var operString : String?
@@ -88,7 +88,7 @@ class ViewController: UIViewController {
         calc.processStringArray = [""]
         numWordStringStorage = [""]
         calc.processString = ""
-
+        k = 0
         printProcess()
     }
     //MARK: - <#func equalPressed
@@ -102,8 +102,9 @@ class ViewController: UIViewController {
             
 
             if isOperatorPressed {
-                calc.processString += calc.processStringArray[j]
+                calc.processString += calc.processStringArray[k]
                 isOperatorPressed = false
+                k += 1
             }
             
         }
