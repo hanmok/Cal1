@@ -17,7 +17,7 @@ class ViewController: UIViewController {
     var muldiOperIndex : [Bool] = [false]
     var calc = CalculatorBasic()
     var numWordStringStorage = [""]
-    var isOperatorPressed = false
+ 
     
     //save a number with several digit in the form of String
     
@@ -90,15 +90,17 @@ class ViewController: UIViewController {
         calc.numWordIntStorage.append(0)
         numWordStringStorage.append("")
         calc.processStringArray.append("")
-        isOperatorPressed = true
+       
         printProcess()
         index += 1
+        
+        
+        
         
     }
     //MARK: - <#func clearPressed
     @IBAction func clearPressed(_ sender: UIButton) {
         index = 0
-        calc.operation = ""
         calc.numWordIntStorage = [0]
         calc.operationStorage = [""]
         calc.processStringArray = [""]
@@ -108,6 +110,18 @@ class ViewController: UIViewController {
         printProcess()
         processView.text = "0"
         isDeterminedAnswer = false
+        
+       //////result = 1.0 ???????
+        result = 1.0
+        answer = [1]
+       
+        freshNumIndex = [true]
+        muldiOperIndex = [false]
+        
+        
+       
+        
+        
     }
     //MARK: - <#func printProcess
     func printProcess(){
@@ -130,11 +144,16 @@ class ViewController: UIViewController {
                     freshNumIndex[i] = false ; freshNumIndex[i+1] = false
                     print("check4")
                 }else if calc.operationStorage[i] == "x" && !(freshNumIndex[i]){
+                    print("check5")
                      answer[i] = answer[i-1] * Double(calc.numWordIntStorage[i+1])
+                    print("check6")
                     freshNumIndex[i] = false ; freshNumIndex[i+1] = false
+                    print("check6")
                 }
                 else if calc.operationStorage[i] == "/" && (freshNumIndex[i] && freshNumIndex[i+1]){
+                    print("check7")
                     answer[i] = Double(calc.numWordIntStorage[i]) / Double(calc.numWordIntStorage[i+1])
+                    print("check8")
                     freshNumIndex[i] = false ; freshNumIndex[i+1] = false
                 }else if calc.operationStorage[i] == "/" && !(freshNumIndex[i]){
                     answer[i] = answer[i-1] / Double(calc.numWordIntStorage[i+1])
@@ -144,11 +163,10 @@ class ViewController: UIViewController {
                 if calc.operationStorage[i] == "+"{
                     
                 }else if calc.operationStorage[i] == "-"{
-                    
                 }
             }
-            
         }
+        print(answer[index-1])
 //        for i in 0 ... index-1 {
 //            if !isDeterminedAnswer {
 //            if calc.operationStorage[index-1-i] == "+" || calc.operationStorage[index-1-i] == "-"{
