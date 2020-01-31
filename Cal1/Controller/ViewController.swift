@@ -13,9 +13,9 @@ class ViewController: UIViewController {
     var isDeterminedAnswer = false
     var result : Double?
     var answer : [Double] = [1]
-    var freshAnsIndex : [Int] = [0] // 0 :newly made, 1 : calculated, 2 : used
+    var freshAI : [Int] = [0] // 0 :newly made, 1 : calculated, 2 : used
     var index = 0
-    var freshNumIndex : [Bool] = [true]
+    var freshDI : [Bool] = [true]
     var muldiOperIndex : [Bool] = [false]
     var calc = CalculatorBasic()
     var numWordStringStorage = [""]
@@ -50,14 +50,14 @@ class ViewController: UIViewController {
     }
     //MARK: - <#func numberPressed
     @IBAction func numberPressed(_ sender: UIButton){
-        if calc.DoubleStorage[index] <= 1e18{
+        if calc.DS[index] <= 1e18{
             //prevents app from crushing of limit of Int number
             let myOptional = sender.currentTitle
             if let safeOptional = myOptional{
                 numWordStringStorage[index] += String(safeOptional)
                 calc.processString += String(safeOptional)
             }
-            calc.DoubleStorage[index] = Double(numWordStringStorage[index])!
+            calc.DS[index] = Double(numWordStringStorage[index])!
             print("numWordStringStorage[\(index)] :\(numWordStringStorage[index])")
             printProcess()
         }
@@ -87,10 +87,10 @@ class ViewController: UIViewController {
         
         print("calc.operationStorage[\(index)] : \(calc.operationStorage[index])")
         
-        freshNumIndex.append(true)
-        freshAnsIndex.append(0)
+        freshDI.append(true)
+        freshAI.append(0)
         calc.operationStorage.append("")
-        calc.DoubleStorage.append(0)
+        calc.DS.append(0)
         numWordStringStorage.append("")
         calc.processStringArray.append("")
         printProcess()
@@ -100,7 +100,7 @@ class ViewController: UIViewController {
     //MARK: - <#func clearPressed
     @IBAction func clearPressed(_ sender: UIButton) {
         index = 0
-        calc.DoubleStorage = [0]
+        calc.DS = [0]
         calc.operationStorage = [""]
         calc.processStringArray = [""]
         numWordStringStorage = [""]
@@ -112,7 +112,7 @@ class ViewController: UIViewController {
         
         answer = [1]
         
-        freshNumIndex = [true]
+        freshDI = [true]
         muldiOperIndex = [false]
     }
     //MARK: - <#func printProcess
@@ -127,26 +127,26 @@ class ViewController: UIViewController {
     func calculateAns(){//{d
         for i in 0 ... index-1 { // first for statement : for Operation == "x" or "/"
             if muldiOperIndex[i]{
-                if calc.operationStorage[i] == "x" && (freshNumIndex[i] && freshNumIndex[i+1]){
+                if calc.operationStorage[i] == "x" && (freshDI[i] && freshDI[i+1]){
                     //곱셈 , D[i]전항과 D[i+1]후항 존재, >> 두개 곱함.
-                    answer[i] = calc.DoubleStorage[i] * calc.DoubleStorage[i+1]
-                    freshAnsIndex[i] = 1;freshNumIndex[i] = false ; freshNumIndex[i+1] = false;
+                    answer[i] = calc.DS[i] * calc.DS[i+1]
+                    freshAI[i] = 1 ; freshDI[i] = false ; freshDI[i+1] = false;
                     result = answer[i]; print("result1 (answer[\(i)]: \(result ?? answer[i])"); print("result1 (answer[\(i)]: \(String(describing: result))")
-                }else if calc.operationStorage[i] == "x" && !(freshNumIndex[i]){
+                }else if calc.operationStorage[i] == "x" && !(freshDI[i]){
                     //곱셈, D[i]전항 존재 안할 때 >> A[i-1] * D[i+1]
-                    answer[i] = answer[i-1] * calc.DoubleStorage[i+1]
-                    freshAnsIndex[i] = 1;freshAnsIndex[i-1] = 2 ; freshNumIndex[i+1] = false
+                    answer[i] = answer[i-1] * calc.DS[i+1]
+                    freshAI[i] = 1;freshAI[i-1] = 2 ; freshDI[i+1] = false
                     result = answer[i]; print("result2 (answer[\(i)]: \(result ?? answer[i])"); print("result2 : (answer[\(i)] \(String(describing: result))")
                     
                 }
-                else if calc.operationStorage[i] == "/" && (freshNumIndex[i] && freshNumIndex[i+1]){
-                    answer[i] = calc.DoubleStorage[i] / calc.DoubleStorage[i+1]
-                    freshAnsIndex[i] = 1;freshNumIndex[i] = false ; freshNumIndex[i+1] = false
+                else if calc.operationStorage[i] == "/" && (freshDI[i] && freshDI[i+1]){
+                    answer[i] = calc.DS[i] / calc.DS[i+1]
+                    freshAI[i] = 1;freshDI[i] = false ; freshDI[i+1] = false
                     result = answer[i]; print("result3 (answer[\(i)]: \(result ?? answer[i])"); print("result3 (answer[\(i)]: \(String(describing: result))")
                     
-                }else if calc.operationStorage[i] == "/" && !(freshNumIndex[i]){
-                    answer[i] = answer[i-1] / calc.DoubleStorage[i+1]
-                    freshAnsIndex[i] = 1; freshAnsIndex[i-1] = 2 ; freshNumIndex[i+1] = false
+                }else if calc.operationStorage[i] == "/" && !(freshDI[i]){
+                    answer[i] = answer[i-1] / calc.DS[i+1]
+                    freshAI[i] = 1; freshAI[i-1] = 2 ; freshDI[i+1] = false
                     result = answer[i]; print("result4 (answer[\(i)]: \(result ?? answer[i])"); print("result4 : (answer[\(i)] \(String(describing: result))")
                     
                 }
@@ -160,23 +160,24 @@ class ViewController: UIViewController {
         
         
         for i in 0 ... index-1 {  //  muldiOperIndex == false begins. ( Operator == "+" or "-" // {c
+            print("+/- index start : \(i)")
             if !muldiOperIndex[i]{ //{b
                 // + or - 연산
                 if calc.operationStorage[i] == "+"{// + 연산
-                    if freshNumIndex[i+1]{
+                    if freshDI[i+1]{
                         //+ 연산 >> D[i+1] 존재하는 경우.
-                        if freshNumIndex[i]{
+                        if freshDI[i]{
                             //+ 연산 >> D[i+1] 존재하는 경우. >> D[i] 존재하는 경우.
-                            answer[i] = calc.DoubleStorage[i] + calc.DoubleStorage[i+1]
-                            freshAnsIndex[i] = 1 ; freshNumIndex[i] = false ; freshNumIndex[i+1] = false
+                            answer[i] = calc.DS[i] + calc.DS[i+1]
+                            freshAI[i] = 1 ; freshDI[i] = false ; freshDI[i+1] = false
                             result = answer[i]; print("result5 (answer[\(i)]: \(result ?? answer[i])"); print("result5 : \(String(describing: result))")
-                        } else if !freshNumIndex[i]{
+                        } else if !freshDI[i]{
                             //+ 연산 >> D[i+1] 존재하는 경우. >> D[i] 존재 ㄴㄴ
                             for k in 1 ... i{
 //                                if k>1 {
-                                    if (freshAnsIndex[i-k] == 1) && !loopBreaker2{
-                                        answer[i] = answer[i-k] + calc.DoubleStorage[i+1]
-                                        freshAnsIndex[i] = 1;freshAnsIndex[i-k] = 2 ; freshNumIndex[i+1] = false
+                                    if (freshAI[i-k] == 1) && !loopBreaker2{
+                                        answer[i] = answer[i-k] + calc.DS[i+1]
+                                        freshAI[i] = 1;freshAI[i-k] = 2 ; freshDI[i+1] = false
                                         result = answer[i]; print("result6 : (answer[\(i)]\(result ?? answer[i])"); print("result6 (answer[\(i)]: \(String(describing: result))")
                                         
                                         loopBreaker2 = true
@@ -187,27 +188,27 @@ class ViewController: UIViewController {
                             
                             loopBreaker2 = false
                         }
-                    }else if !(freshNumIndex[i+1]){ // a-1
+                    }else if !(freshDI[i+1]){ // a-1
                         //+연산 >> D[i+1] 존재 ㄴㄴ
                         for k in i ... index-1 {
                             if !loopBreaker{ // what is this for? prevents several calculations on one operation.
-                                if freshAnsIndex[k+1] == 1 {
+                                if freshAI[k+1] == 1 {
                                     //+연산 >> D[i+1] 존재 ㄴㄴ >>Ans[k](k : i+1, i+2, ... index-1 존재
-                                    if freshNumIndex[i]{
+                                    if freshDI[i]{
                                         //+연산 >> D[i+1] 존재 ㄴㄴ >>Ans[k](k : i+1, i+2, ... index-1 존재 >> D[i] 존재
-                                        answer[i] = calc.DoubleStorage[i] + answer[k+1]
+                                        answer[i] = calc.DS[i] + answer[k+1]
                                         print("Error finding3")
-                                        freshAnsIndex[i] = 1; freshNumIndex[i] = false; freshAnsIndex[k+1] = 2;
+                                        freshAI[i] = 1; freshDI[i] = false; freshAI[k+1] = 2;
                                         result = answer[i]; print("result7 (answer[\(i)]: \(result ?? answer[i])"); print("result7 (answer[\(i)]: \(String(describing: result))")
                                         //여기부터 문제되는 코드. !!
-                                    }else if !freshNumIndex[i]{
+                                    }else if !freshDI[i]{
                                         //+연산 >> D[i+1] 존재 ㄴㄴ >>Ans[k](k : i+1, i+2, ... index-1 존재 >> D[i] 존재 ㄴㄴ
                                         loopBreaker2 = false
                                         for j in 0 ... i{
-                                            if (freshAnsIndex[i-j] == 1) && !loopBreaker2{
+                                            if (freshAI[i-j] == 1) && !loopBreaker2{
                                                 //+연산 >> D[i+1] 존재 ㄴㄴ >>Ans[k](k>i) 존재 >> D[i] 존재 ㄴㄴ >> A[i-j](i-j < i) 존재
                                                 answer[i] = answer[i-j] + answer[k+1]
-                                                freshAnsIndex[i] = 1; freshAnsIndex[i-j] = 2; freshAnsIndex[k+1] = 2
+                                                freshAI[i] = 1; freshAI[i-j] = 2; freshAI[k+1] = 2
                                                 result = answer[i]; print("result8 (answer[\(i)]: \(result ?? answer[i])"); print("result8 (answer[\(i)]: \(String(describing: result))")
                                                 
                                                 loopBreaker2 = true
@@ -218,42 +219,43 @@ class ViewController: UIViewController {
                                 }
                                 loopBreaker = true
                             }
-                            loopBreaker = false
+                           
                         }
+                        loopBreaker = false
                     } // a-1
                 }
                     
                 else if calc.operationStorage[i] == "-"{
-                    if freshNumIndex[i+1]{
-                        if freshNumIndex[i]{
-                            answer[i] = calc.DoubleStorage[i] - calc.DoubleStorage[i+1]
+                    if freshDI[i+1]{
+                        if freshDI[i]{
+                            answer[i] = calc.DS[i] - calc.DS[i+1]
                             result = answer[i]; print("result9 (answer[\(i)]: \(result ?? answer[i])"); print("result9 (answer[\(i)]: \(String(describing: result))")
-                            freshNumIndex[i] = false ; freshNumIndex[i+1] = false
-                        }else if !freshNumIndex[i] {
+                            freshDI[i] = false ; freshDI[i+1] = false
+                        }else if !freshDI[i] {
                             for k in 1 ... index-1{
-                                if (freshAnsIndex[i-k] == 1) && !loopBreaker2{
-                                    answer[i] = answer[i-k] - calc.DoubleStorage[i+1]
+                                if (freshAI[i-k] == 1) && !loopBreaker2{
+                                    answer[i] = answer[i-k] - calc.DS[i+1]
                                     result = answer[i]; print("result10 (answer[\(i)]: \(result ?? answer[i])"); print("result10 (answer[\(i)]: \(String(describing: result))")
-                                    freshAnsIndex[i] = 1;freshAnsIndex[i-k] = 2 ; freshNumIndex[i+1] = false
+                                    freshAI[i] = 1;freshAI[i-k] = 2 ; freshDI[i+1] = false
                                     loopBreaker2 = true
                                 }
                             }
                             loopBreaker2 = false
                         }
-                    }else if !(freshNumIndex)[i+1]{
+                    }else if !(freshDI)[i+1]{
                         for k in i+1 ... index-1 {
                             if !loopBreaker{
-                                if freshAnsIndex[k] == 1 {
-                                    if freshNumIndex[i]{
-                                        answer[i] = calc.DoubleStorage[i] - answer[k]
+                                if freshAI[k] == 1 {
+                                    if freshDI[i]{
+                                        answer[i] = calc.DS[i] - answer[k]
                                         result = answer[i]; print("result11 : \(result ?? answer[i])"); print("result11 : \(String(describing: result))")
-                                        freshAnsIndex[i] = 1 ;freshAnsIndex[k] = 2; freshNumIndex[i] = false
-                                    }else if !freshNumIndex[i]{
+                                        freshAI[i] = 1 ;freshAI[k] = 2; freshDI[i] = false
+                                    }else if !freshDI[i]{
                                         for j in 0 ... index-1{
-                                            if (freshAnsIndex[i-j] == 1) && !loopBreaker2{
+                                            if (freshAI[i-j] == 1) && !loopBreaker2{
                                                 answer[i] = answer[i-j] + answer[k]
                                                 result = answer[i]; print("result12 : \(result ?? answer[i])"); print("result12 : \(String(describing: result))")
-                                                freshAnsIndex[i-j] = 2; freshAnsIndex[k] = 2
+                                                freshAI[i-j] = 2; freshAI[k] = 2
                                                 loopBreaker2 = true
                                             }
                                         }
