@@ -12,7 +12,7 @@ struct CalculatorBasic{
 
     var operation : String?
     //operation it will perform
-    var numWordDoubleStorage = [0.0]
+    var DoubleStorage = [0.0]
     // a number made by numberStorage[]
     var operationStorage = [""]
     var processString = ""
