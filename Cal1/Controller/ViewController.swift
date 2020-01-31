@@ -21,6 +21,7 @@ class ViewController: UIViewController {
     var numWordStringStorage = [""]
     var loopBreaker = false
     var loopBreaker2 = false
+    var dummyPasser = false
     
     
     //save a number with several digit in the form of String
@@ -191,10 +192,16 @@ class ViewController: UIViewController {
                     }else if !(freshDI[i+1]){ // a-1
                         //+연산 >> D[i+1] 존재 ㄴㄴ
                         for k in i ... index-1 {
+                            print("loopBreaker : \(loopBreaker)")
                             if !loopBreaker{ // what is this for? prevents several calculations on one operation.
+                                //freshAI[k+1] 값 하나 찾았으면 그만 돌려라 . 근데 지금 하나도 못찾고 날라가는중..
+                                print("loopBreaker passed")
                                 if freshAI[k+1] == 1 {
+                                    dummyPasser = true
+                                    print("freshAI[\(i)] = \(freshAI[k+1])")
                                     //+연산 >> D[i+1] 존재 ㄴㄴ >>Ans[k](k : i+1, i+2, ... index-1 존재
                                     if freshDI[i]{
+                                        print("freshDI[\(i)] passed")
                                         //+연산 >> D[i+1] 존재 ㄴㄴ >>Ans[k](k : i+1, i+2, ... index-1 존재 >> D[i] 존재
                                         answer[i] = calc.DS[i] + answer[k+1]
                                         print("Error finding3")
@@ -210,17 +217,16 @@ class ViewController: UIViewController {
                                                 answer[i] = answer[i-j] + answer[k+1]
                                                 freshAI[i] = 1; freshAI[i-j] = 2; freshAI[k+1] = 2
                                                 result = answer[i]; print("result8 (answer[\(i)]: \(result ?? answer[i])"); print("result8 (answer[\(i)]: \(String(describing: result))")
-                                                
                                                 loopBreaker2 = true
                                             }
                                         }
                                         loopBreaker2 = false
                                     }
                                 }
-                                loopBreaker = true
+                                if dummyPasser {loopBreaker = true}
                             }
-                           
                         }
+                        dummyPasser = false
                         loopBreaker = false
                     } // a-1
                 }
