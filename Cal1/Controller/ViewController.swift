@@ -22,10 +22,11 @@ class ViewController: UIViewController {
     var loopBreaker = false
     var loopBreaker2 = false
     var dummyPasser = false
-    
-    
+    var dummyPasser2 = false
+
+
     //save a number with several digit in the form of String
-    
+
     @IBOutlet weak var processView: UITextView!
     @IBOutlet weak var resultView: UITextView!
     @IBOutlet weak var operPlus: UIButton!
@@ -97,7 +98,6 @@ class ViewController: UIViewController {
         printProcess()
         index += 1
     }
-    
     //MARK: - <#func clearPressed
     @IBAction func clearPressed(_ sender: UIButton) {
         index = 0
@@ -138,7 +138,6 @@ class ViewController: UIViewController {
                     answer[i] = answer[i-1] * calc.DS[i+1]
                     freshAI[i] = 1;freshAI[i-1] = 2 ; freshDI[i+1] = false
                     result = answer[i]; print("result2 (answer[\(i)]: \(result ?? answer[i])"); print("result2 : (answer[\(i)] \(String(describing: result))")
-                    
                 }
                 else if calc.operationStorage[i] == "/" && (freshDI[i] && freshDI[i+1]){
                     answer[i] = calc.DS[i] / calc.DS[i+1]
@@ -149,14 +148,9 @@ class ViewController: UIViewController {
                     answer[i] = answer[i-1] / calc.DS[i+1]
                     freshAI[i] = 1; freshAI[i-1] = 2 ; freshDI[i+1] = false
                     result = answer[i]; print("result4 (answer[\(i)]: \(result ?? answer[i])"); print("result4 : (answer[\(i)] \(String(describing: result))")
-                    
                 }
             }
         }
-        
-        
-        
-        
         
         
         
@@ -180,13 +174,9 @@ class ViewController: UIViewController {
                                         answer[i] = answer[i-k] + calc.DS[i+1]
                                         freshAI[i] = 1;freshAI[i-k] = 2 ; freshDI[i+1] = false
                                         result = answer[i]; print("result6 : (answer[\(i)]\(result ?? answer[i])"); print("result6 (answer[\(i)]: \(String(describing: result))")
-                                        
                                         loopBreaker2 = true
-                                        
                                     }
-//                                }
                             }
-                            
                             loopBreaker2 = false
                         }
                     }else if !(freshDI[i+1]){ // a-1
@@ -233,45 +223,58 @@ class ViewController: UIViewController {
                     
                 else if calc.operationStorage[i] == "-"{
                     if freshDI[i+1]{
+                        //뒤 D[i+1] 존재
                         if freshDI[i]{
+                            //뒤 D[i+1] 존재 >> 앞 D[i] 존재
                             answer[i] = calc.DS[i] - calc.DS[i+1]
+                            freshAI[i] = 1 ; freshDI[i] = false ; freshDI[i+1] = false
                             result = answer[i]; print("result9 (answer[\(i)]: \(result ?? answer[i])"); print("result9 (answer[\(i)]: \(String(describing: result))")
-                            freshDI[i] = false ; freshDI[i+1] = false
                         }else if !freshDI[i] {
-                            for k in 1 ... index-1{
+                            //뒤 D[i+1] 존재 >> 앞 D[i] 존재 ㄴㄴ
+                            for k in 1 ... i{
                                 if (freshAI[i-k] == 1) && !loopBreaker2{
                                     answer[i] = answer[i-k] - calc.DS[i+1]
-                                    result = answer[i]; print("result10 (answer[\(i)]: \(result ?? answer[i])"); print("result10 (answer[\(i)]: \(String(describing: result))")
                                     freshAI[i] = 1;freshAI[i-k] = 2 ; freshDI[i+1] = false
+                                    result = answer[i]; print("result10 (answer[\(i)]: \(result ?? answer[i])"); print("result10 (answer[\(i)]: \(String(describing: result))")
+                    
                                     loopBreaker2 = true
                                 }
                             }
                             loopBreaker2 = false
                         }
-                    }else if !(freshDI)[i+1]{
-                        for k in i+1 ... index-1 {
+                    }else if !(freshDI[i+1]){
+                        // 뒤 D[i+1] 존재 ㄴㄴ
+                        for k in i ... index-1 {
                             if !loopBreaker{
-                                if freshAI[k] == 1 {
+                                if freshAI[k+1] == 1 {
+                                    // 뒤 A[k+1] 찾음.
+                                    dummyPasser2 = true
                                     if freshDI[i]{
-                                        answer[i] = calc.DS[i] - answer[k]
+                                        //뒤 D[i+1] 존재 ㄴㄴ >> 뒤 A[k+1] >> 앞 D[i] 존재
+                                        answer[i] = calc.DS[i] - answer[k+1]
+                                        freshAI[i] = 1 ;freshDI[i] = false ; freshAI[k+1] = 2
                                         result = answer[i]; print("result11 : \(result ?? answer[i])"); print("result11 : \(String(describing: result))")
-                                        freshAI[i] = 1 ;freshAI[k] = 2; freshDI[i] = false
+                                       
                                     }else if !freshDI[i]{
-                                        for j in 0 ... index-1{
+                                        // 뒤 D[i+1] 존재 ㄴㄴ >> 뒤 A[k+1] >> 앞 D[i] 존재 ㄴㄴ
+                                        loopBreaker2 = false
+                                        for j in 0 ... i{
                                             if (freshAI[i-j] == 1) && !loopBreaker2{
-                                                answer[i] = answer[i-j] + answer[k]
+                                                answer[i] = answer[i-j] - answer[k+1]
+                                                freshAI[i] = 1; freshAI[i-j] = 2; freshAI[k+1] = 2
                                                 result = answer[i]; print("result12 : \(result ?? answer[i])"); print("result12 : \(String(describing: result))")
-                                                freshAI[i-j] = 2; freshAI[k] = 2
+                                                
                                                 loopBreaker2 = true
                                             }
                                         }
                                         loopBreaker2 = false
-                                        loopBreaker = true
                                     }
                                 }
+                                if dummyPasser2{loopBreaker = true}
                             }
-                            loopBreaker = false
                         }
+                        loopBreaker = false
+                        dummyPasser2 = false
                     }
                 }
             }
