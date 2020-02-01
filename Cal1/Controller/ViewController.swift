@@ -10,7 +10,8 @@ import UIKit
 
 class ViewController: UIViewController {
     var ansFindingIndex : Int?
-    var isDeterminedAnswer = false
+    
+    var numChecker = false
     var result : Double?
     var answer : [Double] = [1]
     var freshAI : [Int] = [0] // 0 :newly made, 1 : calculated, 2 : used
@@ -22,7 +23,7 @@ class ViewController: UIViewController {
     var loopBreaker = false
     var loopBreaker2 = false
     var dummyPasser = false
-    var dummyPasser2 = false
+    
     
     
     //save a number with several digit in the form of String
@@ -66,38 +67,107 @@ class ViewController: UIViewController {
     }
     //MARK: - <#func operationPressed
     @IBAction func operationPressed(_ sender: UIButton){
+        print("index : \(index)")
+        //        if numWordStringStorage[index] != ""{
         //        print(sender.titleLabel!)
+        
         if let operInput = sender.currentTitle{
-            switch operInput{//operation String
-            case "+" : calc.operationStorage[index] = "+"
-            case "-" : calc.operationStorage[index] = "-"
-            case "X" : calc.operationStorage[index] = "x"
-            case "/" : calc.operationStorage[index] = "/"
-            default: print("other buttons pressed")
-            calc.operationStorage[index] = "operation button error"
+            if numWordStringStorage[index] != ""{
+                //정상적인 경우
+                switch operInput{//operation String
+                case "+" : calc.operationStorage[index] = "+"
+                case "-" : calc.operationStorage[index] = "-"
+                case "X" : calc.operationStorage[index] = "x"
+                case "/" : calc.operationStorage[index] = "/"
+                default: print("other buttons pressed")
+                calc.operationStorage[index] = "operation button error"
+                }
+            }else if numWordStringStorage[index] == ""{
+                //비정상적인 경우.
+                switch operInput{//operation String
+                case "+" : calc.operationStorage[index-1] = "+"
+                case "-" : calc.operationStorage[index-1] = "-"
+                case "X" : calc.operationStorage[index-1] = "x"
+                case "/" : calc.operationStorage[index-1] = "/"
+                default: print("other buttons pressed")
+                calc.operationStorage[index-1] = "operation button error"
+                }
             }
         }
-        if index >= 1{
+        //calc.operationStorage[index-1] = "opearation "
+        
+        
+        print("pass 1")
+        if numWordStringStorage[index] != ""{
+            //정상적인 경우
+            
+            print("정상적인 경우, numWordStringStorage[\(index)]  : \(numWordStringStorage[index]) ")
+            if calc.operationStorage[index] == "x" || calc.operationStorage[index] == "/"{
+                print("p 1.3")
+                muldiOperIndex[index] = true
+                print("p 1.5")
+            } else if calc.operationStorage[index] == "+" || calc.operationStorage[index] == "-"{
+                print("p 1.7")
+                muldiOperIndex[index] = false
+            }
+            print("muldiOperIndex[\(index)] : \(muldiOperIndex[index])")
+        }else if numWordStringStorage[index] == ""{
+            print("비정상적인 경우, numWordStringStorage[\(index-1)] : \(numWordStringStorage[index-1])")
+            //비정상적인 경우.
+            if calc.operationStorage[index-1] == "x" || calc.operationStorage[index-1] == "/"{
+                muldiOperIndex[index-1] = true
+            } else if calc.operationStorage[index-1] == "+" || calc.operationStorage[index-1] == "-"{
+                muldiOperIndex[index-1] = false}
+            print("muldiOperIndex[\(index-1)] : \(muldiOperIndex[index-1])")
+        }
+        print("pass2")
+        
+        if numWordStringStorage[index] != ""{
+            //정상적인 경우.
+            calc.processString += calc.operationStorage[index]
+            print("calc.operationStorage[\(index)] : \(calc.operationStorage[index])")
+            print("pass 3")
+        }else if numWordStringStorage[index] == ""{
+            //비정상적인 경우.
+            let str = calc.processString.dropLast()
+            //            print(str)
+            calc.processString = String(str)
+            //전에 입력받은 수식을 걷어냄.
+            calc.processString += calc.operationStorage[index-1]
+            //            print(myString)
+            //            calc.processString
+            //            calc.processString += calc.operationStorage[index-1]
+        }
+        print("pass 4")
+        
+        
+        
+        
+        if numWordStringStorage[index] != ""{
+            //전 넘버가 공백이 아닐 때에만 실행. 정상인 경우에만 실행!
+            //실행하지 말것.
+            if index >= 1{
+//                muldiOperIndex.append(false)
+                answer.append(1)
+            }
             muldiOperIndex.append(false)
-            answer.append(1)
+            
+            
+            
+            //실행하지 말것.
+            freshDI.append(true)
+            freshAI.append(0)
+            calc.operationStorage.append("")
+            calc.DS.append(0)
+            numWordStringStorage.append("")
+            calc.processStringArray.append("")
+            
+            index += 1
         }
-        if calc.operationStorage[index] == "x" || calc.operationStorage[index] == "/"{
-            muldiOperIndex[index] = true
-        }
-        print("muldiOperIndex[\(index)] : \(muldiOperIndex[index])")
-        calc.processString += calc.operationStorage[index]
-        
-        print("calc.operationStorage[\(index)] : \(calc.operationStorage[index])")
-        
-        freshDI.append(true)
-        freshAI.append(0)
-        calc.operationStorage.append("")
-        calc.DS.append(0)
-        numWordStringStorage.append("")
-        calc.processStringArray.append("")
         printProcess()
-        index += 1
     }
+    
+    //    }
     //MARK: - <#func clearPressed
     @IBAction func clearPressed(_ sender: UIButton) {
         index = 0
@@ -109,7 +179,7 @@ class ViewController: UIViewController {
         
         printProcess()
         processView.text = "0"
-        isDeterminedAnswer = false
+        
         
         answer = [1]
         
@@ -248,7 +318,7 @@ class ViewController: UIViewController {
                             if !loopBreaker{
                                 if freshAI[k+1] == 1 {
                                     // 뒤 A[k+1] 찾음.
-                                    dummyPasser2 = true
+                                    dummyPasser = true
                                     if freshDI[i]{
                                         //뒤 D[i+1] 존재 ㄴㄴ >> 뒤 A[k+1] >> 앞 D[i] 존재
                                         answer[i] = calc.DS[i] - answer[k+1]
@@ -270,11 +340,11 @@ class ViewController: UIViewController {
                                         loopBreaker2 = false
                                     }
                                 }
-                                if dummyPasser2{loopBreaker = true}
+                                if dummyPasser{loopBreaker = true}
                             }
                         }
                         loopBreaker = false
-                        dummyPasser2 = false
+                        dummyPasser = false
                     }
                 }
             }
