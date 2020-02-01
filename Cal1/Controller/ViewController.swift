@@ -23,10 +23,10 @@ class ViewController: UIViewController {
     var loopBreaker2 = false
     var dummyPasser = false
     var dummyPasser2 = false
-
-
+    
+    
     //save a number with several digit in the form of String
-
+    
     @IBOutlet weak var processView: UITextView!
     @IBOutlet weak var resultView: UITextView!
     @IBOutlet weak var operPlus: UIButton!
@@ -169,13 +169,13 @@ class ViewController: UIViewController {
                         } else if !freshDI[i]{
                             //+ 연산 >> D[i+1] 존재하는 경우. >> D[i] 존재 ㄴㄴ
                             for k in 1 ... i{
-//                                if k>1 {
-                                    if (freshAI[i-k] == 1) && !loopBreaker2{
-                                        answer[i] = answer[i-k] + calc.DS[i+1]
-                                        freshAI[i] = 1;freshAI[i-k] = 2 ; freshDI[i+1] = false
-                                        result = answer[i]; print("result6 : (answer[\(i)]\(result ?? answer[i])"); print("result6 (answer[\(i)]: \(String(describing: result))")
-                                        loopBreaker2 = true
-                                    }
+                                //                                if k>1 {
+                                if (freshAI[i-k] == 1) && !loopBreaker2{
+                                    answer[i] = answer[i-k] + calc.DS[i+1]
+                                    freshAI[i] = 1;freshAI[i-k] = 2 ; freshDI[i+1] = false
+                                    result = answer[i]; print("result6 : (answer[\(i)]\(result ?? answer[i])"); print("result6 (answer[\(i)]: \(String(describing: result))")
+                                    loopBreaker2 = true
+                                }
                             }
                             loopBreaker2 = false
                         }
@@ -236,7 +236,7 @@ class ViewController: UIViewController {
                                     answer[i] = answer[i-k] - calc.DS[i+1]
                                     freshAI[i] = 1;freshAI[i-k] = 2 ; freshDI[i+1] = false
                                     result = answer[i]; print("result10 (answer[\(i)]: \(result ?? answer[i])"); print("result10 (answer[\(i)]: \(String(describing: result))")
-                    
+                                    
                                     loopBreaker2 = true
                                 }
                             }
@@ -254,7 +254,7 @@ class ViewController: UIViewController {
                                         answer[i] = calc.DS[i] - answer[k+1]
                                         freshAI[i] = 1 ;freshDI[i] = false ; freshAI[k+1] = 2
                                         result = answer[i]; print("result11 : \(result ?? answer[i])"); print("result11 : \(String(describing: result))")
-                                       
+                                        
                                     }else if !freshDI[i]{
                                         // 뒤 D[i+1] 존재 ㄴㄴ >> 뒤 A[k+1] >> 앞 D[i] 존재 ㄴㄴ
                                         loopBreaker2 = false
@@ -279,5 +279,17 @@ class ViewController: UIViewController {
                 }
             }
         }
+        for u in 0 ... index-1
+        {
+            if freshAI[u] == 1{
+                let intDecider = Int(answer[u])
+                if answer[u] - Double(intDecider) == 0 {
+                    resultView.text = String(Int(answer[u]))
+                }else {
+                    resultView.text = String(format : "%.2f", answer[u])
+                }
+            }
+            
+        } // end of function
     }
 }
