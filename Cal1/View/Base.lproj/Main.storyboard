@@ -186,6 +186,9 @@
                                                 <rect key="frame" x="75" y="0.0" width="75" height="104"/>
                                                 <fontDescription key="fontDescription" name="ChalkboardSE-Regular" family="Chalkboard SE" pointSize="50"/>
                                                 <state key="normal" title="."/>
+                                                <connections>
+                                                    <action selector="numberPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="dFn-n0-95m"/>
+                                                </connections>
                                             </button>
                                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="ePu-ge-HEb" userLabel="arrows">
                                                 <rect key="frame" x="150" y="0.0" width="75" height="104"/>

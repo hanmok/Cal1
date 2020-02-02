@@ -54,15 +54,9 @@ class ViewController: UIViewController {
             
             printProcess()
             processView.text = "0"
-           
-            
-            
             answer = [1]
-            
             freshDI = [true]
             muldiOperIndex = [false]
-            
-            
             clearAfterAns = false
         }
         
@@ -70,13 +64,29 @@ class ViewController: UIViewController {
         if calc.DS[index] <= 1e18{
             let myOptional = sender.currentTitle
             if let safeOptional = myOptional{
-                numWordStringStorage[index] += String(safeOptional)
-                calc.processString += String(safeOptional)
+                if !(safeOptional == ".") ||  !(numWordStringStorage[index].contains(".")){
+                    // double dots >> ignore the first dot.
+                    numWordStringStorage[index] += String(safeOptional)
+                    
+                    if numWordStringStorage[index] == "."{
+                        numWordStringStorage[index] = "0."
+                        calc.processString += String("0" + safeOptional)
+                    } else {
+                        calc.processString += String(safeOptional)
+                    }
+                }
             }
+            // when dot clicked without any number prior to, it automatically input 0 before 0
+            
+            
+            
             calc.DS[index] = Double(numWordStringStorage[index])!
             print("numWordStringStorage[\(index)] :\(numWordStringStorage[index])")
             printProcess()
         }
+        
+        
+        
     }
     //MARK: - <#func operationPressed
     @IBAction func operationPressed(_ sender: UIButton){
@@ -327,7 +337,7 @@ class ViewController: UIViewController {
             {
                 if freshAI[u] == 1{
                     clearAfterAns = true
-//                    isFoundAns = true
+                    //                    isFoundAns = true
                     let intDecider = Int(answer[u])
                     if answer[u] - Double(intDecider) == 0 {
                         resultView.text = String(Int(answer[u]))
@@ -343,8 +353,8 @@ class ViewController: UIViewController {
             //index == 0 인 경우 호출되는 함수 .
         }else {
             clearAfterAns = true
-//        if !isFoundAns{
-
+            //        if !isFoundAns{
+            
             let intDecider = Int(calc.DS[0])
             if (calc.DS[0] - Double(intDecider)) == 0 {
                 resultView.text = String(Int(calc.DS[0]))
@@ -352,7 +362,7 @@ class ViewController: UIViewController {
                 resultView.text = String(format : "%.1f", calc.DS[0])
             }
         }
-//        }
+        //        }
     } // end of function calculateAns
 }
 
