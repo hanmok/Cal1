@@ -66,17 +66,38 @@ class ViewController: UIViewController {
             if let safeOptional = myOptional{
                 if !(safeOptional == ".") ||  !(numWordStringStorage[index].contains(".")){
                     // double dots >> ignore the first dot.
+                    
+                    //if
+                    if safeOptional != "."{
+                        //input : 0~9
+                        if numWordStringStorage[index] == "0"{
+                            // prior number is 0
+                            let str1 = numWordStringStorage[index].dropLast()
+                            numWordStringStorage[index] = String(str1)
+//                           set numWordStringStorage[index] ""
+                           
+                            let str2 = calc.processString.dropLast()
+                            calc.processString = String(str2)
+                            
+                        }
+                    }
+                    
                     numWordStringStorage[index] += String(safeOptional)
                     
+                // when dot clicked without any number prior to, it automatically input 0 before dot
+                    //if input == . >> input = 0.
                     if numWordStringStorage[index] == "."{
                         numWordStringStorage[index] = "0."
                         calc.processString += String("0" + safeOptional)
                     } else {
                         calc.processString += String(safeOptional)
                     }
+                    
                 }
             }
-            // when dot clicked without any number prior to, it automatically input 0 before 0
+
+            
+            
             
             
             
