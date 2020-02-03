@@ -6,16 +6,19 @@ class ViewController: UIViewController {
     var result : Double?
     var answer : [Double] = [1]
     var freshAI : [Int] = [0] // 0 :newly made, 1 : calculated, 2 : used
-    var index = 0
     var freshDI : [Bool] = [true]
+    
+    var index = 0
     var muldiOperIndex : [Bool] = [false]
-    var calc = CalculatorBasic()
-    var numWordStringStorage = [""]
+    
+    var tempDigits = [""]
     var loopBreaker = false
     var loopBreaker2 = false
     var dummyPasser = false
     var isFoundAns = false
     var clearAfterAns = false
+    
+    var calc = CalculatorBasic()
     
     @IBOutlet weak var processView: UITextView!
     @IBOutlet weak var resultView: UITextView!
@@ -45,119 +48,88 @@ class ViewController: UIViewController {
     @IBAction func numberPressed(_ sender: UIButton){
         
         if clearAfterAns{
-            index = 0
-            calc.DS = [0]
-            calc.operationStorage = [""]
-            calc.processStringArray = [""]
-            numWordStringStorage = [""]
-            calc.processString = ""
-            
-            printProcess()
-            processView.text = "0"
-            answer = [1]
-            freshDI = [true]
-            muldiOperIndex = [false]
+            clear()
             clearAfterAns = false
         }
         
-        
         if calc.DS[index] <= 1e18{
-            let myOptional = sender.currentTitle
-            if let safeOptional = myOptional{
-                if !(safeOptional == ".") ||  !(numWordStringStorage[index].contains(".")){
+//            let myOptional = sender.currentTitle
+            if let safeOptional = sender.currentTitle{
+                if !(safeOptional == ".") ||  !(tempDigits[index].contains(".")){
                     // double dots >> ignore the first dot.
                     
                     //if
-                    if safeOptional != "."{
-                        //input : 0~9
-                        if numWordStringStorage[index] == "0"{
-                            // prior number is 0
-                            let str1 = numWordStringStorage[index].dropLast()
-                            numWordStringStorage[index] = String(str1)
-//                           set numWordStringStorage[index] ""
-                           
-                            let str2 = calc.processString.dropLast()
-                            calc.processString = String(str2)
+                    if safeOptional != "." && tempDigits[index] == "0"{
+                            let str1 = tempDigits[index].dropLast()
+                            tempDigits[index] = String(str1)
                             
-                        }
+                            let str2 = calc.process.dropLast()
+                            calc.process = String(str2)
                     }
-                    
-                    numWordStringStorage[index] += String(safeOptional)
-                    
-                // when dot clicked without any number prior to, it automatically input 0 before dot
+                    tempDigits[index] += String(safeOptional)
+                    // when dot clicked without any number prior to, it automatically input 0 before dot
                     //if input == . >> input = 0.
-                    if numWordStringStorage[index] == "."{
-                        numWordStringStorage[index] = "0."
-                        calc.processString += String("0" + safeOptional)
+                    if tempDigits[index] == "."{
+                        tempDigits[index] = "0."
+                        calc.process += String("0.")
                     } else {
-                        calc.processString += String(safeOptional)
+                        calc.process += String(safeOptional)
                     }
-                    
                 }
             }
-
-            
-            
-            
-            
-            
-            calc.DS[index] = Double(numWordStringStorage[index])!
-            print("numWordStringStorage[\(index)] :\(numWordStringStorage[index])")
+            calc.DS[index] = Double(tempDigits[index])!
+            print("tempDigits[\(index)] :\(tempDigits[index])")
             printProcess()
         }
-        
-        
-        
     }
     //MARK: - <#func operationPressed
     @IBAction func operationPressed(_ sender: UIButton){
         
         if let operInput = sender.currentTitle{
-            if numWordStringStorage[index] != ""{
+            if tempDigits[index] != ""{
                 
                 switch operInput{
                 case "+" : calc.operationStorage[index] = "+"
                 case "-" : calc.operationStorage[index] = "-"
                 case "X" : calc.operationStorage[index] = "x"
                 case "/" : calc.operationStorage[index] = "/"
-                default: print("other buttons pressed")
-                calc.operationStorage[index] = "operation button error"
+                default: print("Operation Error!")
                 }
-            }else if numWordStringStorage[index] == ""{
+            }else if tempDigits[index] == ""{
                 
                 switch operInput{
                 case "+" : calc.operationStorage[index-1] = "+"
                 case "-" : calc.operationStorage[index-1] = "-"
                 case "X" : calc.operationStorage[index-1] = "x"
                 case "/" : calc.operationStorage[index-1] = "/"
-                default: print("other buttons pressed")
-                calc.operationStorage[index-1] = "operation button error"
+                default: print("Operation Error!")
+                    
                 }
             }
         }
         
-        if numWordStringStorage[index] != ""{
+        if tempDigits[index] != ""{
             if calc.operationStorage[index] == "x" || calc.operationStorage[index] == "/"{
                 muldiOperIndex[index] = true
             } else if calc.operationStorage[index] == "+" || calc.operationStorage[index] == "-"{
                 muldiOperIndex[index] = false
             }
-        }else if numWordStringStorage[index] == ""{
+        }else if tempDigits[index] == ""{
             if calc.operationStorage[index-1] == "x" || calc.operationStorage[index-1] == "/"{
                 muldiOperIndex[index-1] = true
             } else if calc.operationStorage[index-1] == "+" || calc.operationStorage[index-1] == "-"{
                 muldiOperIndex[index-1] = false}
             print("muldiOperIndex[\(index-1)] : \(muldiOperIndex[index-1])")
         }
-        if numWordStringStorage[index] != ""{
-            calc.processString += calc.operationStorage[index]
+        if tempDigits[index] != ""{
+            calc.process += calc.operationStorage[index]
             print("calc.operationStorage[\(index)] : \(calc.operationStorage[index])")
-        }else if numWordStringStorage[index] == ""{
-            let str = calc.processString.dropLast()
-            calc.processString = String(str)
-            calc.processString += calc.operationStorage[index-1]
+        }else if tempDigits[index] == ""{
+            let str = calc.process.dropLast()
+            calc.process = String(str)
+            calc.process += calc.operationStorage[index-1]
         }
-        if numWordStringStorage[index] != ""{
+        if tempDigits[index] != ""{
             if index >= 1{
                 answer.append(1)
             }
@@ -167,8 +139,8 @@ class ViewController: UIViewController {
             freshAI.append(0)
             calc.operationStorage.append("")
             calc.DS.append(0)
-            numWordStringStorage.append("")
-            calc.processStringArray.append("")
+            tempDigits.append("")
+            
             
             index += 1
         }
@@ -178,26 +150,13 @@ class ViewController: UIViewController {
     //    }
     //MARK: - <#func clearPressed
     @IBAction func clearPressed(_ sender: UIButton) {
-        index = 0
-        calc.DS = [0]
-        calc.operationStorage = [""]
-        calc.processStringArray = [""]
-        numWordStringStorage = [""]
-        calc.processString = ""
-        
-        printProcess()
-        processView.text = "0"
+        clear()
         resultView.text = ""
         
-        
-        answer = [1]
-        
-        freshDI = [true]
-        muldiOperIndex = [false]
     }
     //MARK: - <#func printProcess
     func printProcess(){
-        processView.text = calc.processString
+        processView.text = calc.process
     }
     //MARK: - <#func ansPressed
     @IBAction func ansPressed(_ sender: UIButton) {
@@ -385,5 +344,25 @@ class ViewController: UIViewController {
         }
         //        }
     } // end of function calculateAns
+    
+    func clear(){
+        index = 0
+        calc.DS = [0]
+        calc.operationStorage = [""]
+        
+        tempDigits = [""]
+        calc.process = ""
+        
+        printProcess()
+        processView.text = "0"
+        //        resultView.text = ""
+        
+        
+        answer = [1]
+        
+        freshDI = [true]
+        muldiOperIndex = [false]
+    }
 }
+
 

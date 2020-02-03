@@ -15,9 +15,7 @@ struct CalculatorBasic{
     var DS = [0.0]
     // a number made by numberStorage[]
     var operationStorage = [""]
-    var processString = ""
-    var processStringArray = [""]
-    var answer : Double?
-    
+    var process = ""
+
     //the number printed in the process console
 }
