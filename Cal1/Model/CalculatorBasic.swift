@@ -9,9 +9,6 @@
 import UIKit
 
 struct CalculatorBasic{
-
-    var operation : String?
-    //operation it will perform
     var DS = [0.0]
     // a number made by numberStorage[]
     var operationStorage = [""]
