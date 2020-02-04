@@ -17,6 +17,7 @@ class ViewController: UIViewController {
     var dummyPasser = false
     var isFoundAns = false
     var clearAfterAns = false
+    var noNumberAfterOperator = false
     
     var calc = CalculatorBasic()
     
@@ -262,24 +263,39 @@ class ViewController: UIViewController {
             
             for u in 0 ... index-1
             {
-                if freshAI[u] == 1{
+                print("freshAI[\(u)] : \(freshAI[u])")
+                if freshAI[u] == 1 || freshAI[u] == 0 {
+                    print("freshDI[\(u+1)] : \(freshDI[u+1])")
+                    print("calc.DS[\(u+1)] : \(calc.DS[u+1])")
+                    
+                    if freshDI[u+1]{
+                        let str2 = calc.process.dropLast()
+                        calc.process = String(str2)
+                    }
                     clearAfterAns = true
                     //                    isFoundAns = true ?? what is this for ?
                     floatingNumberDecider(ans: answer[u])
                 }
             }
-            // index != 0 인 경우 호출되는 함수 영역.
+            // 여기까지 index != 0 인 경우 호출되는 함수 영역.
             
             
             //index == 0 인 경우 호출되는 함수 .
         }else {
+            print("freshDI[1] = \(freshDI[1])")
             clearAfterAns = true
             //        if !isFoundAns{
             floatingNumberDecider(ans: calc.DS[0])
             
         }
+//        if freshDI[i] == true{
+            
+//        }
         //        }
+        printProcess()
     } // end of function calculateAns
+    
+    
     //MARK: - <#func clear
     func clear(){
         index = 0
@@ -321,6 +337,7 @@ class ViewController: UIViewController {
             resultView.text = "\(String(format : "%.6f", ans))"
         }
     }
+    //print up to 6 digits after floating poing depending on the result
     
 }
 
