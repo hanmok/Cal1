@@ -267,7 +267,6 @@ class ViewController: UIViewController {
                     //                    isFoundAns = true ?? what is this for ?
                     floatingNumberDecider(ans: answer[u])
                 }
-                
             }
             // index != 0 인 경우 호출되는 함수 영역.
             
