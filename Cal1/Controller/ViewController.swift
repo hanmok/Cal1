@@ -53,12 +53,8 @@ class ViewController: UIViewController {
         }
         
         if calc.DS[index] <= 1e18{
-            //            let myOptional = sender.currentTitle
             if let digitInput = sender.currentTitle{
                 if !(digitInput == ".") ||  !(tempDigits[index].contains(".")){
-                    // double dots >> ignore the first dot.
-                    
-                    //if
                     if digitInput != "." && tempDigits[index] == "0"{
                         let str1 = tempDigits[index].dropLast()
                         tempDigits[index] = String(str1)
@@ -67,8 +63,6 @@ class ViewController: UIViewController {
                         calc.process = String(str2)
                     }
                     tempDigits[index] += String(digitInput)
-                    // when dot clicked without any number prior to, it automatically input 0 before dot
-                    //if input == . >> input = 0.
                     if tempDigits[index] == "."{
                         tempDigits[index] = "0."
                         calc.process += String("0.")
@@ -78,7 +72,6 @@ class ViewController: UIViewController {
                 }
             }
             calc.DS[index] = Double(tempDigits[index])!
-            print("tempDigits[\(index)] :\(tempDigits[index])")
             printProcess()
         }
     }
@@ -96,52 +89,41 @@ class ViewController: UIViewController {
                 default: print("Operation Error!")
                 }
                 if calc.operationStorage[index] == "x" || calc.operationStorage[index] == "/"{
-                    muldiOperIndex[index] = true
-                } else if calc.operationStorage[index] == "+" || calc.operationStorage[index] == "-"{
-                    muldiOperIndex[index] = false
-                }
+                    muldiOperIndex[index] = true}
+                else if calc.operationStorage[index] == "+" || calc.operationStorage[index] == "-"{
+                    muldiOperIndex[index] = false}
+                
                 calc.process += calc.operationStorage[index]
                 
             }else if tempDigits[index] == ""{
-                
-                
                 switch operInput{
                 case "+" : calc.operationStorage[index-1] = "+"
                 case "-" : calc.operationStorage[index-1] = "-"
                 case "X" : calc.operationStorage[index-1] = "x"
                 case "/" : calc.operationStorage[index-1] = "/"
-                default: print("Operation Error!")
-                    
-                }
+                default: print("Operation Error!")}
                 if calc.operationStorage[index-1] == "x" || calc.operationStorage[index-1] == "/"{
-                    muldiOperIndex[index-1] = true
-                } else if calc.operationStorage[index-1] == "+" || calc.operationStorage[index-1] == "-"{
+                    muldiOperIndex[index-1] = true}
+                else if calc.operationStorage[index-1] == "+" || calc.operationStorage[index-1] == "-"{
                     muldiOperIndex[index-1] = false}
-                
                 
                 let str = calc.process.dropLast()
                 calc.process = String(str)
                 calc.process += calc.operationStorage[index-1]
             }
         }
-        
         if tempDigits[index] != ""{
             if index >= 1{
                 answer.append(1)
             }
-            
             indexUpdate()
         }
-        
         printProcess()
     }
-    
-    //    }
     //MARK: - <#func clearPressed
     @IBAction func clearPressed(_ sender: UIButton) {
         clear()
         resultView.text = ""
-        
     }
     
     //MARK: - <#func ansPressed
@@ -151,135 +133,89 @@ class ViewController: UIViewController {
     
     func calculateAns(){//{d
         if index != 0 {
-            for i in 0 ... index-1 { // first for statement : for Operation == "x" or "/"
+            for i in 0 ... index-1 {
                 if muldiOperIndex[i]{
                     if  freshDI[i]{
-                        //곱셈 , D[i]전항과 D[i+1]후항 존재, >> 두개 곱함.
-                        if calc.operationStorage[i] == "x" {
-                            answer[i] = calc.DS[i] * calc.DS[i+1]
-                        }else if calc.operationStorage[i] == "/"{
-                            answer[i] = calc.DS[i] / calc.DS[i+1]
-                        }
+                        if calc.operationStorage[i] == "x" {answer[i] = calc.DS[i] * calc.DS[i+1]}
+                        else if calc.operationStorage[i] == "/"{answer[i] = calc.DS[i] / calc.DS[i+1]}
                         freshAI[i] = 1 ; freshDI[i] = false ; freshDI[i+1] = false;
-                        result = answer[i]; print("result1 (answer[\(i)]: \(result ?? answer[i])")
+                        result = answer[i]
                     }else if  !freshDI[i]{
-                        //곱셈, D[i]전항 존재 안할 때 >> A[i-1] * D[i+1]
-                        if calc.operationStorage[i] == "x"{
-                            answer[i] = answer[i-1] * calc.DS[i+1]
-                        }else if calc.operationStorage[i] == "/"{
-                            answer[i] = answer[i-1] / calc.DS[i+1]
-                        }
+                        if calc.operationStorage[i] == "x"{answer[i] = answer[i-1] * calc.DS[i+1]}
+                        else if calc.operationStorage[i] == "/"{answer[i] = answer[i-1] / calc.DS[i+1]}
                         freshAI[i] = 1;freshAI[i-1] = 2 ; freshDI[i+1] = false
-                        result = answer[i]; print("result2 (answer[\(i)]: \(result ?? answer[i])")
+                        result = answer[i]
                     }
                 }
             }
-            
-            
-            
-            
-            for i in 0 ... index-1 {  //  muldiOperIndex == false begins. ( Operator == "+" or "-" // {c
-                print("+/- index start : \(i)")
-                if !muldiOperIndex[i]{ //{b
-                    // + or - 연산
-                        if freshDI[i+1]{
-                            //+ 연산 >> D[i+1] 존재하는 경우.
-                            if freshDI[i]{
-                                //+ 연산 >> D[i+1] 존재하는 경우. >> D[i] 존재하는 경우.
-                                if calc.operationStorage[i] == "+"{
-                                answer[i] = calc.DS[i] + calc.DS[i+1]
-                                } else if calc.operationStorage[i] == "-"{
-                                    answer[i] = calc.DS[i] - calc.DS[i+1]
-                                }
-                                
-                                freshAI[i] = 1 ; freshDI[i] = false ; freshDI[i+1] = false
-                                result = answer[i]; print("result5 (answer[\(i)]: \(result ?? answer[i])")
-                            } else if !freshDI[i]{
-                                //+ 연산 >> D[i+1] 존재하는 경우. >> D[i] 존재 ㄴㄴ
-                                for k in 1 ... i{
-                                    if (freshAI[i-k] == 1) && !loopBreaker2{
-                                        if calc.operationStorage[i] == "+"{
-                                        answer[i] = answer[i-k] + calc.DS[i+1]
-                                        }else if calc.operationStorage[i] == "-"{
-                                            answer[i] = answer[i-k] - calc.DS[i+1]
-                                        }
-                                        freshAI[i] = 1;freshAI[i-k] = 2 ; freshDI[i+1] = false
-                                        result = answer[i]; print("result6 : (answer[\(i)]\(result ?? answer[i])")
-                                        loopBreaker2 = true
-                                    }
-                                }
-                                loopBreaker2 = false
-                            }
-                        }else if !(freshDI[i+1]){
-                            //+연산 >> D[i+1] 존재 ㄴㄴ
-                            for k in i ... index-1 {
-                                print("loopBreaker : \(loopBreaker)")
-                                if !loopBreaker{ // what is this for? prevents several calculations on one operation.
-                                    print("loopBreaker passed")
-                                    if freshAI[k+1] == 1 {
-                                        dummyPasser = true
-                                        print("freshAI[\(i)] = \(freshAI[k+1])")
-                                        //+연산 >> D[i+1] 존재 ㄴㄴ >>Ans[k](k : i+1, i+2, ... index-1 존재
-                                        if freshDI[i]{
-                                            print("freshDI[\(i)] passed")
-                                            //+연산 >> D[i+1] 존재 ㄴㄴ >>Ans[k](k : i+1, i+2, ... index-1 존재 >> D[i] 존재
-                                            if calc.operationStorage[i] == "+"{
-                                            answer[i] = calc.DS[i] + answer[k+1]
-                                            }else if calc.operationStorage[i] == "-"{
-                                            answer[i] = calc.DS[i] - answer[k+1]
-                                            }
-                                            print("Error finding3")
-                                            freshAI[i] = 1; freshDI[i] = false; freshAI[k+1] = 2;
-                                            result = answer[i]; print("result7 (answer[\(i)]: \(result ?? answer[i])")
-                                            
-                                        }else if !freshDI[i]{
-                                            //+연산 >> D[i+1] 존재 ㄴㄴ >>Ans[k](k : i+1, i+2, ... index-1 존재 >> D[i] 존재 ㄴㄴ
-//                                            loopBreaker2 = false
-                                            for j in 1 ... i{
-                                                if (freshAI[i-j] == 1) && !loopBreaker2{
-                                                    //+연산 >> D[i+1] 존재 ㄴㄴ >>Ans[k](k>i) 존재 >> D[i] 존재 ㄴㄴ >> A[i-j](i-j < i) 존재
-                                                    if calc.operationStorage[i] == "+"{
-                                                    answer[i] = answer[i-j] + answer[k+1]
-                                                    } else if calc.operationStorage[i] == "-"{
-                                                    answer[i] = answer[i-j] - answer[k+1]
-                                                    }
-                                                    freshAI[i] = 1; freshAI[i-j] = 2; freshAI[k+1] = 2
-                                                    result = answer[i]; print("result8 (answer[\(i)]: \(result ?? answer[i])")
-                                                    loopBreaker2 = true
-                                                }
-                                            }
-                                            loopBreaker2 = false
-                                        }
-                                    }
-                                    if dummyPasser {loopBreaker = true}
+            for i in 0 ... index-1 {
+                if !muldiOperIndex[i]{
+                    if freshDI[i+1]{
+                        if freshDI[i]{
+                            if calc.operationStorage[i] == "+"{answer[i] = calc.DS[i] + calc.DS[i+1]}
+                            else if calc.operationStorage[i] == "-"{answer[i] = calc.DS[i] - calc.DS[i+1]}
+                            
+                            freshAI[i] = 1 ; freshDI[i] = false ; freshDI[i+1] = false
+                            result = answer[i]
+                        } else if !freshDI[i]{
+                            for k in 1 ... i{
+                                if (freshAI[i-k] == 1) && !loopBreaker2{
+                                    if calc.operationStorage[i] == "+"{answer[i] = answer[i-k] + calc.DS[i+1]}
+                                    else if calc.operationStorage[i] == "-"{answer[i] = answer[i-k] - calc.DS[i+1]}
+                                    
+                                    freshAI[i] = 1;freshAI[i-k] = 2 ; freshDI[i+1] = false
+                                    result = answer[i]
+                                    loopBreaker2 = true
                                 }
                             }
-                            dummyPasser = false
-                            loopBreaker = false
+                            loopBreaker2 = false
                         }
+                    }else if !(freshDI[i+1]){
+                        for k in i ... index-1 {
+                            if !loopBreaker{
+                                if freshAI[k+1] == 1 {
+                                    dummyPasser = true
+                                    if freshDI[i]{
+                                        if calc.operationStorage[i] == "+"{answer[i] = calc.DS[i] + answer[k+1]}
+                                        else if calc.operationStorage[i] == "-"{answer[i] = calc.DS[i] - answer[k+1]}
+                                        freshAI[i] = 1; freshDI[i] = false; freshAI[k+1] = 2;
+                                        result = answer[i]
+                                    }else if !freshDI[i]{
+                                        for j in 1 ... i{
+                                            if (freshAI[i-j] == 1) && !loopBreaker2{
+                                                if calc.operationStorage[i] == "+"{
+                                                    answer[i] = answer[i-j] + answer[k+1]
+                                                } else if calc.operationStorage[i] == "-"{
+                                                    answer[i] = answer[i-j] - answer[k+1]
+                                                }
+                                                freshAI[i] = 1; freshAI[i-j] = 2; freshAI[k+1] = 2
+                                                result = answer[i]
+                                                loopBreaker2 = true
+                                            }
+                                        }
+                                        loopBreaker2 = false
+                                    }
+                                }
+                                if dummyPasser {loopBreaker = true}
+                            }
+                        }
+                        dummyPasser = false
+                        loopBreaker = false
                     }
+                }
             }
-            
             for u in 0 ... index-1
             {
                 if freshAI[u] == 1{
                     clearAfterAns = true
-                    //                    isFoundAns = true ?? what is this for ?
                     floatingNumberDecider(ans: answer[u])
                 }
             }
-            // index != 0 인 경우 호출되는 함수 영역.
-            
-            
-            //index == 0 인 경우 호출되는 함수 .
         }else {
             clearAfterAns = true
-            //        if !isFoundAns{
             floatingNumberDecider(ans: calc.DS[0])
-            
         }
-        //        }
-    } // end of function calculateAns
+    }
     //MARK: - <#func clear
     func clear(){
         index = 0
