@@ -106,6 +106,8 @@ class ViewController: UIViewController {
                 //                                    tempDigits[index] += String(digitInput)
             }
             //input tempDigits[index] to  DS, with changing freshDI with 1 which means it recived a user input.
+             print("tempDigis[index] : das ")
+//            print("tempDigis[index] : \(tempDigits[index]) ")
             DS[index] = Double(tempDigits[index])!
             freshDI[index] = 1
             
@@ -119,108 +121,50 @@ class ViewController: UIViewController {
     
     //MARK: - <#func operationPressed
     @IBAction func operationPressed(_ sender: UIButton){
-        
         if let operInput = sender.currentTitle{
-            // normal case, number input exist before operator input
-            if tempDigits[index] != ""{
-                
-                switch operInput{
-                case "+" :  operationStorage[index] = "+"
-                case "-" :  operationStorage[index] = "-"
-                case "X" :  operationStorage[index] = "x"
-                case "/" :  operationStorage[index] = "/"
-                default: print("Operation Error!")
-                }
-                if  operationStorage[index] == "x" ||  operationStorage[index] == "/"{
-                    muldiOperIndex[index] = true
-                } else if  operationStorage[index] == "+" ||  operationStorage[index] == "-"{
-                    muldiOperIndex[index] = false
-                }
-                
-                
-                process +=  operationStorage[index]
-                
-                //abnormal case, no number input before operator input.
-            }else if tempDigits[index] == ""{
-                if index == 0 {
-                    if saveResult != nil {
-                        clearAfterAns = false
+//              abnormal case, no number input before operator button pressed.
+//            print("index in operationPressed : \(index)")
+             if tempDigits[index] == ""{
+                if index == 0 && saveResult != nil{
+                        clearAfterAns = false//why? to prevent reexcxcuteclear function in the numberPressed func.
                         clear()
-                        process = String(saveResult!)
-                        print(" process = String(saveResult!)")
                         DS[0] = saveResult!
-                        freshDI[index] = 1
-                        print(" DS[0] asd: \( DS[0])")
-                        clearAfterAns = false
+                        freshDI[index] = 1 //allocated 1 to freshDI cause it initialized with number not be changed.
+                        process = String(DS[0]) // edition needed to print it without decimal pojnt in case of this value is integer
                         
-                        switch operInput{
-                        case "+" :  operationStorage[index] = "+"
-                        case "X" :  operationStorage[index] = "x"
-                        case "-" :  operationStorage[index] = "-"
-                        case "/" :  operationStorage[index] = "/"
-                        default: print("Operation Error!")
-                        }
-                        if  operationStorage[index] == "x" ||  operationStorage[index] == "/"{
-                            muldiOperIndex[index] = true
-                        } else if  operationStorage[index] == "+" ||  operationStorage[index] == "-"{
-                            muldiOperIndex[index] = false
-                        }
-                        
+                        operinputSetup(tempOperInput: operInput, tempIndex: index)
                         process +=  operationStorage[index]
-                    }
+                    answer.append(200) // for error checking
+                    indexUpdate()
+                    //in case no number input before operator input, replace prior one with new input.(Double Operator)(no index and answer update.)
                 }
-                
-                if index != 0 {
-                    //                if saveResult != nil && index == 0 {
-                    //                    tempStorage =
-                    //                }
-                    switch operInput{
-                    case "+" :  operationStorage[index-1] = "+"
-                    case "-" :  operationStorage[index-1] = "-"
-                    case "X" :  operationStorage[index-1] = "x"
-                    case "/" :  operationStorage[index-1] = "/"
-                    default: print("Operation Error!")
-                        
-                    }
-                    if  operationStorage[index-1] == "x" ||  operationStorage[index-1] == "/"{
-                        muldiOperIndex[index-1] = true
-                    } else if  operationStorage[index-1] == "+" ||  operationStorage[index-1] == "-"{
-                        muldiOperIndex[index-1] = false}
-                    
-                    
+                    if index != 0 {
+                    operinputSetup(tempOperInput: operInput, tempIndex: index-1)
                     let str =  process.dropLast()
                     process = String(str)
-                    process +=  operationStorage[index-1]
+                    process += operationStorage[index-1]
                 }
-            }
-            
-            
-            
-        }
-        if tempDigits[index] != ""{
-            if index >= 1{
+                // normal case, number input exist before operator input
+            } else if tempDigits[index] != ""{
+                operinputSetup(tempOperInput: operInput, tempIndex: index)
+                process +=  operationStorage[index]
                 answer.append(200) // for error checking
+                indexUpdate()
             }
-            indexUpdate()
-        }
-        printProcess()
+            printProcess()
+        } //  if let operInput = sender.currentTitle ends.
     }
+    //list of indexUpdate()
+//    muldiOperIndex.append(true)
+//    freshDI.append(0)
+//    freshAI.append(0)
+//    operationStorage.append("")
+//    DS.append(0)
+//    tempDigits.append("")
+//    index += 1
     
     //    }
-    //MARK: - <#func clearPressed
-    @IBAction func clearPressed(_ sender: UIButton) {
-        clear()
-        resultView.text = ""
-        processView.text = "0"
-        saveResult = nil
-        
-    }
-    
-    //MARK: - <#func ansPressed
-    @IBAction func ansPressed(_ sender: UIButton) {
-        calculateAns()
-    }
-    
+   
     func calculateAns(){//{d
         if index != 0 {
             for i in 0 ... index-1 { // first for statement : for Operation == "x" or "/"
@@ -381,16 +325,29 @@ class ViewController: UIViewController {
         
     } // end of function calculateAns
     
-    
+    @IBAction func clearPressed(_ sender: UIButton) {
+        clear()
+        //        index = 0
+        //        DS = [0]
+        //        operationStorage = [""]
+        //        tempDigits = [""]
+        //        printProcess()
+        //        answer = [300] // for error check.
+        //        freshDI = [0]
+        //        muldiOperIndex = [false]
+        resultView.text = ""
+        processView.text = "0"
+        saveResult = nil
+        process = ""
+
+    }
     //MARK: - <#func clear
     func clear(){
         index = 0
         DS = [0]
         operationStorage = [""]
         tempDigits = [""]
-        
         printProcess()
-        
         answer = [300] // for error check.
         freshDI = [0]
         muldiOperIndex = [false]
@@ -408,6 +365,7 @@ class ViewController: UIViewController {
         tempDigits.append("")
         index += 1
     }
+    
     //MARK: - <#func printProcess
     func printProcess(){
         processView.text =  process
@@ -430,6 +388,30 @@ class ViewController: UIViewController {
     }
     //print up to 6 digits after floating poing depending on the result
     
+    //MARK: - <#func clearPressed
+       
+       
+       //MARK: - <#func ansPressed
+       @IBAction func ansPressed(_ sender: UIButton) {
+           calculateAns()
+       }
+       
+    
+    func operinputSetup(tempOperInput : String, tempIndex : Int){
+        switch tempOperInput{
+        case "+" :  operationStorage[tempIndex] = "+"
+        case "X" :  operationStorage[tempIndex] = "x"
+        case "-" :  operationStorage[tempIndex] = "-"
+        case "/" :  operationStorage[tempIndex] = "/"
+        default: break
+        }
+        if  operationStorage[tempIndex] == "x" ||  operationStorage[tempIndex] == "/"{
+            muldiOperIndex[tempIndex] = true
+        } else if  operationStorage[index] == "+" ||  operationStorage[tempIndex] == "-"{
+            muldiOperIndex[tempIndex] = false
+        }
+    }
+
 }
 
 
