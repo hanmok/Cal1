@@ -136,8 +136,11 @@ class ViewController: UIViewController {
         if let operInput = sender.currentTitle{
             //              abnormal case, no number input before operator button pressed.
             //            print("index in operationPressed : \(index)")
+            print("path 1, DS[0] : \(DS[0])")
             if tempDigits[index] == ""{
+                print("path 2 DS[0] : \(DS[0])")
                 if index == 0 && saveResult != nil{
+                    print("path 3 DS[0] : \(DS[0])")
                     clearAfterAns = false//why? to prevent reexcxcuteclear function in the numberPressed func.
                     clear()
                     DS[0] = saveResult!
@@ -152,19 +155,38 @@ class ViewController: UIViewController {
                     indexUpdate()
                     //in case no number input before operator input, replace prior one with new input.(Double Operator)(no index and answer update.)
                 }
+                print("path 4 DS[0] : \(DS[0])")
                 if index != 0 {
-                    operinputSetup(tempOperInput: operInput, tempIndex: index-1)
+                    print("path 5 DS[0] : \(DS[0])")
+//                    operinputSetup(tempOperInput: operInput, tempIndex: index-1)
+                    switch operInput{
+                    case "+" :  operationStorage[index-1] = "+"
+                    case "X" :  operationStorage[index-1] = "x"
+                    case "-" :  operationStorage[index-1] = "-"
+                    case "/" :  operationStorage[index-1] = "/"
+                    default: print("operationStorage[\(index-1)] :\(operationStorage[index-1]) ")
+                    }
+                    print("operationStorage[\(index-1)] : \(operationStorage[index-1])")
+                    if  operationStorage[index-1] == "x" ||  operationStorage[index-1] == "/"{
+                        muldiOperIndex[index-1] = true
+                    } else if  operationStorage[index-1] == "+" ||  operationStorage[index-1] == "-"{
+                        muldiOperIndex[index-1] = false
+                    }
+                    print("muldiOperIndex[\(index-1)] :  \(muldiOperIndex[index-1])")
+                    
                     let str =  process.dropLast()
                     process = String(str)
                     process += operationStorage[index-1]
                 }
                 // normal case, number input exist before operator input
             } else if tempDigits[index] != ""{
+                print("path 6 DS[0] : \(DS[0])")
                 operinputSetup(tempOperInput: operInput, tempIndex: index)
                 process +=  operationStorage[index]
                 answer.append(200) // for error checking
                 indexUpdate()
             }
+            print("path 7 DS[0] : \(DS[0]) ")
             printProcess()
         } //  if let operInput = sender.currentTitle ends.
     }
@@ -184,15 +206,21 @@ class ViewController: UIViewController {
             for i in 0 ... index-1 { // first for statement : for Operation == "x" or "/"
                 print("DS[\(index)] : \(DS[index])")
                 print("OperationStorage[\(index)] : \(operationStorage[index])")
-                
+                print("어디냐1")
                 if muldiOperIndex[i]{
+                    print("muldiOperIndex[\(i)] : \(muldiOperIndex[i])")
+                    print("어디냐2")
                     if  freshDI[i] == 1 && freshDI[i+1] == 1{
+                        print("어디냐3")
                         //곱셈 , D[i]전항과 D[i+1]후항 존재, >> 두개 곱함.
                         if  operationStorage[i] == "x" {
+                            print("어디냐4")
                             answer[i] =  DS[i] *  DS[i+1]
                         }else if  operationStorage[i] == "/"{
+                            print("어디냐5")
                             answer[i] =  DS[i] /  DS[i+1]
                         }
+                        print("어디냐6")
                         freshAI[i] = 1 ; freshDI[i] = 2 ; freshDI[i+1] = 2;
                         result = answer[i]; print("result1 (answer[\(i)]: \(result ?? answer[i])")
                     }else if  freshDI[i] == 2 && freshDI[i+1] == 1{
@@ -210,19 +238,25 @@ class ViewController: UIViewController {
             
             for i in 0 ... index-1 {  //  muldiOperIndex == false begins. ( Operator == "+" or "-" // {c
                 print("+/- index start : \(i)")
+                print("어디냐7")
                 if !muldiOperIndex[i]{ //{b
+                    print("어디냐8")
                     // + or - 연산
                     if freshDI[i+1] == 1{
+                        print("어디냐9")
                         //+ 연산 >> D[i+1] 존재하는 경우.
                         if freshDI[i] == 1{
                             //+ 연산 >> D[i+1] 존재하는 경우. >> D[i] 존재하는 경우.
                             if  operationStorage[i] == "+"{
+                                print("answer[\(i)] =  DS[\(i)] +  DS[\(i+1)] : \(answer[i]) =  \(DS[i]) +  \(DS[i+1])")
                                 answer[i] =  DS[i] +  DS[i+1]
+                               
                             } else if  operationStorage[i] == "-"{
                                 answer[i] =  DS[i] -  DS[i+1]
                             }
                             
                             freshAI[i] = 1 ; freshDI[i] = 2 ; freshDI[i+1] = 2
+                            print("freshAI[\(i)] : \(freshAI[i]), freshDI[\(i)] : \(freshDI[i]), freshDI[\(i+1)] : \(freshDI[i+1])")
                             result = answer[i]; print("result5 (answer[\(i)]: \(result ?? answer[i])")
                         } else if freshDI[i] == 2{
                             //+ 연산 >> D[i+1] 존재하는 경우. >> D[i] 존재 ㄴㄴ
@@ -293,6 +327,8 @@ class ViewController: UIViewController {
             
             for u in 0 ... index-1
             {
+                print("answer[\(u)] :\(answer[u]) ")
+                print("freshAI[\(u)] :\(freshAI[u]) ")
                 //                print("freshAI[\(u)] : \(freshAI[u])")
                 if freshAI[u] == 1{
                     print("freshDI[\(u+1)] : \(freshDI[u+1])")
@@ -375,7 +411,7 @@ class ViewController: UIViewController {
     }
     
     func printProcess(){
-        processView.text =  process
+        processView.text = process
     }
    
     func floatingNumberDecider(ans : Double){
@@ -386,6 +422,7 @@ class ViewController: UIViewController {
                 escape = true
                 saveResult = ans
                 resultView.text = "\(String(format : "%.\(i)f", ans))"
+                print("ans : \(ans)")
             }
         }
         // if one decimal point excced 10, it prints till 6th decimal places
@@ -407,7 +444,7 @@ class ViewController: UIViewController {
         case "X" :  operationStorage[tempIndex] = "x"
         case "-" :  operationStorage[tempIndex] = "-"
         case "/" :  operationStorage[tempIndex] = "/"
-        default: break
+        default: print("operationStorage[\(tempIndex)] :\(operationStorage[tempIndex]) ")
         }
         if  operationStorage[tempIndex] == "x" ||  operationStorage[tempIndex] == "/"{
             muldiOperIndex[tempIndex] = true
