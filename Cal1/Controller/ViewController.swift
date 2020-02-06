@@ -159,19 +159,8 @@ class ViewController: UIViewController {
                 if index != 0 {
                     print("path 5 DS[0] : \(DS[0])")
 //                    operinputSetup(tempOperInput: operInput, tempIndex: index-1)
-                    switch operInput{
-                    case "+" :  operationStorage[index-1] = "+"
-                    case "X" :  operationStorage[index-1] = "x"
-                    case "-" :  operationStorage[index-1] = "-"
-                    case "/" :  operationStorage[index-1] = "/"
-                    default: print("operationStorage[\(index-1)] :\(operationStorage[index-1]) ")
-                    }
-                    print("operationStorage[\(index-1)] : \(operationStorage[index-1])")
-                    if  operationStorage[index-1] == "x" ||  operationStorage[index-1] == "/"{
-                        muldiOperIndex[index-1] = true
-                    } else if  operationStorage[index-1] == "+" ||  operationStorage[index-1] == "-"{
-                        muldiOperIndex[index-1] = false
-                    }
+                    operinputSetup(tempOperInput: operInput, tempIndex: index-1)
+
                     print("muldiOperIndex[\(index-1)] :  \(muldiOperIndex[index-1])")
                     
                     let str =  process.dropLast()
@@ -182,7 +171,7 @@ class ViewController: UIViewController {
             } else if tempDigits[index] != ""{
                 print("path 6 DS[0] : \(DS[0])")
                 operinputSetup(tempOperInput: operInput, tempIndex: index)
-                process +=  operationStorage[index]
+                process += operationStorage[index]
                 answer.append(200) // for error checking
                 indexUpdate()
             }
@@ -448,7 +437,7 @@ class ViewController: UIViewController {
         }
         if  operationStorage[tempIndex] == "x" ||  operationStorage[tempIndex] == "/"{
             muldiOperIndex[tempIndex] = true
-        } else if  operationStorage[index] == "+" ||  operationStorage[tempIndex] == "-"{
+        } else if  operationStorage[tempIndex] == "+" ||  operationStorage[tempIndex] == "-"{
             muldiOperIndex[tempIndex] = false
         }
     }
