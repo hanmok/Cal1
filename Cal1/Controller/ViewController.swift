@@ -1,4 +1,4 @@
-
+//MARK: - <#default setup
 import UIKit
 
 class ViewController: UIViewController {
@@ -18,7 +18,6 @@ class ViewController: UIViewController {
     var loopBreaker2 = false
     var dummyPasser = false
     var isFoundAns = false
-    
     var clearAfterAns = false
     var noNumberAfterOperator = false
     
@@ -77,41 +76,54 @@ class ViewController: UIViewController {
         
         // if made number is not greater than it's limit
         if  DS[index] <= 1e18{
+            print("index : \(index)")
+            print("1")
             // set each input digit on the digitInput.
             if let digitInput = sender.currentTitle{
-                
+                print("2")
                 //                tempDigits : temporal Storage for number until user finish set a number
                 // ignore double dot on one number input. On usual case, this if statement execute.(usual np-a)
                 if !(digitInput == ".") || !(tempDigits[index].contains(".")){
-                    
-                    //                    tempDigit[index] : user number input immediately before digitInput
+                    print("3")
+                    //                    tempDigit[index] : user number input just before digitInput
                     //if user input 01 02 03 .. 09 , automatically change it to 1, 2, 3, ... 9 (ex)
-                    if digitInput != "." && tempDigits[index] == "0"{
+                    if digitInput != "." && tempDigits[index] == "0" { // tempDigits[index] == 00, 01, 02, ... 09
+                        print(4)
                         //var tempDigits = [""]
+                        
                         let str1 = tempDigits[index].dropLast()
                         tempDigits[index] = String(str1)
+                        tempDigits[index] += digitInput
                         
-                        let str2 =  process.dropLast()
+                        let str2 = process.dropLast()
                         process = String(str2)
-//                when dot clicked without any number prior to, it automatically input 0 before dot. (. >> 0.0)(ex)
-                    }else if tempDigits[index] == "."{
+                        process += digitInput
+                      
+                        //                when dot clicked without any number prior to, it automatically input 0 before dot. (. >> 0.0)(ex)
+                    }else if tempDigits[index] == "" && digitInput == "."{
+                        print(5)
                         tempDigits[index] = "0."
                         process += String("0.")
                     } else { // usual case
-                        process += String(digitInput)
+                        print(6)
                         tempDigits[index] += digitInput
+                        process += String(digitInput)
                     }
-
-                } // np-a
+                    
+                }else if digitInput == "." && tempDigits[index].contains("."){
+                    print(7)
+                }
                 //                                    tempDigits[index] += String(digitInput)
             }
+            if tempDigits[index] != "0."{
+                print(8)
+                if let safeDigits = Double(tempDigits[index]){
+                    print(9)
+                DS[index] = safeDigits
+                 freshDI[index] = 1
+                }
+            }
             //input tempDigits[index] to  DS, with changing freshDI with 1 which means it recived a user input.
-             print("tempDigis[index] : das ")
-//            print("tempDigis[index] : \(tempDigits[index]) ")
-            DS[index] = Double(tempDigits[index])!
-            freshDI[index] = 1
-            
-            //            print("tempDigits[\(index)] :\(tempDigits[index])")
             printProcess()
             //            processView.text =  process
         }
@@ -122,23 +134,25 @@ class ViewController: UIViewController {
     //MARK: - <#func operationPressed
     @IBAction func operationPressed(_ sender: UIButton){
         if let operInput = sender.currentTitle{
-//              abnormal case, no number input before operator button pressed.
-//            print("index in operationPressed : \(index)")
-             if tempDigits[index] == ""{
+            //              abnormal case, no number input before operator button pressed.
+            //            print("index in operationPressed : \(index)")
+            if tempDigits[index] == ""{
                 if index == 0 && saveResult != nil{
-                        clearAfterAns = false//why? to prevent reexcxcuteclear function in the numberPressed func.
-                        clear()
-                        DS[0] = saveResult!
-                        freshDI[index] = 1 //allocated 1 to freshDI cause it initialized with number not be changed.
-                        process = String(DS[0]) // edition needed to print it without decimal pojnt in case of this value is integer
-                        
-                        operinputSetup(tempOperInput: operInput, tempIndex: index)
-                        process +=  operationStorage[index]
+                    clearAfterAns = false//why? to prevent reexcxcuteclear function in the numberPressed func.
+                    clear()
+                    DS[0] = saveResult!
+                    freshDI[index] = 1 //allocated 1 to freshDI cause it initialized with number not be changed.
+                    if (DS[0] - Double(Int(DS[0])) == 0){ process = String(format : "%.0f", DS[0])
+                    }else {process = String(DS[0])}
+                     // edition needed to print it without decimal pojnt in case of this value is integer
+                    
+                    operinputSetup(tempOperInput: operInput, tempIndex: index)
+                    process +=  operationStorage[index]
                     answer.append(200) // for error checking
                     indexUpdate()
                     //in case no number input before operator input, replace prior one with new input.(Double Operator)(no index and answer update.)
                 }
-                    if index != 0 {
+                if index != 0 {
                     operinputSetup(tempOperInput: operInput, tempIndex: index-1)
                     let str =  process.dropLast()
                     process = String(str)
@@ -155,19 +169,22 @@ class ViewController: UIViewController {
         } //  if let operInput = sender.currentTitle ends.
     }
     //list of indexUpdate()
-//    muldiOperIndex.append(true)
-//    freshDI.append(0)
-//    freshAI.append(0)
-//    operationStorage.append("")
-//    DS.append(0)
-//    tempDigits.append("")
-//    index += 1
+    //    muldiOperIndex.append(true)
+    //    freshDI.append(0)
+    //    freshAI.append(0)
+    //    operationStorage.append("")
+    //    DS.append(0)
+    //    tempDigits.append("")
+    //    index += 1
     
     //    }
-   
+    
     func calculateAns(){//{d
         if index != 0 {
             for i in 0 ... index-1 { // first for statement : for Operation == "x" or "/"
+                print("DS[\(index)] : \(DS[index])")
+                print("OperationStorage[\(index)] : \(operationStorage[index])")
+                
                 if muldiOperIndex[i]{
                     if  freshDI[i] == 1 && freshDI[i+1] == 1{
                         //곱셈 , D[i]전항과 D[i+1]후항 존재, >> 두개 곱함.
@@ -190,9 +207,6 @@ class ViewController: UIViewController {
                     }
                 }
             }
-            
-            
-            
             
             for i in 0 ... index-1 {  //  muldiOperIndex == false begins. ( Operator == "+" or "-" // {c
                 print("+/- index start : \(i)")
@@ -286,10 +300,7 @@ class ViewController: UIViewController {
                     
                     if freshDI[index] == 0{
                         let str2 =  process.dropLast()
-                        //                        let str3 = str2.dropLast()
                         process = String(str2)
-                        print("whatthe...")
-                        
                     }
                     // if found ans, in case 5+=
                     isFoundAns = true
@@ -311,20 +322,15 @@ class ViewController: UIViewController {
         }else {
             //            print("freshDI[1] = \(freshDI[1])")
             clearAfterAns = true
-            //        if !isFoundAns{
             floatingNumberDecider(ans:  DS[0])
-            saveResult =  DS[0]
-            
         }
-        //        if freshDI[i] == true{
-        
-        //        }
-        //        }
         printProcess()
         clear()
         
     } // end of function calculateAns
     
+    
+    //MARK: - <#func clearPressed
     @IBAction func clearPressed(_ sender: UIButton) {
         clear()
         //        index = 0
@@ -339,9 +345,10 @@ class ViewController: UIViewController {
         processView.text = "0"
         saveResult = nil
         process = ""
-
+        
     }
-    //MARK: - <#func clear
+    
+   //MARK: - <#func setups
     func clear(){
         index = 0
         DS = [0]
@@ -351,11 +358,12 @@ class ViewController: UIViewController {
         answer = [300] // for error check.
         freshDI = [0]
         muldiOperIndex = [false]
+       
         //        processView.text = "0"
         //         process = ""
         //        saveResult = nil // apply only when pressed clear Button
     }
-    //MARK: - <#func indexUpdate
+    
     func indexUpdate(){
         muldiOperIndex.append(true)
         freshDI.append(0)
@@ -366,36 +374,32 @@ class ViewController: UIViewController {
         index += 1
     }
     
-    //MARK: - <#func printProcess
     func printProcess(){
         processView.text =  process
     }
-    //MARK: - <#func floatingNumberDecider
+   
     func floatingNumberDecider(ans : Double){
         var escape = false
         for i in 0 ... 10{
             let decider = Int(ans * pow(10.0, Double(i)))
             if (ans * pow(10.0,Double(i)) - Double(decider) == 0) && !escape {
                 escape = true
-                saveResult = Double(String(format : "%.\(i)f", ans))
+                saveResult = ans
                 resultView.text = "\(String(format : "%.\(i)f", ans))"
             }
         }
         // if one decimal point excced 10, it prints till 6th decimal places
         if escape == false{
             resultView.text = "\(String(format : "%.6f", ans))"
+            saveResult = ans
         }
     }
     //print up to 6 digits after floating poing depending on the result
     
-    //MARK: - <#func clearPressed
-       
-       
-       //MARK: - <#func ansPressed
-       @IBAction func ansPressed(_ sender: UIButton) {
-           calculateAns()
-       }
-       
+    
+    @IBAction func ansPressed(_ sender: UIButton) {
+        calculateAns()
+    }
     
     func operinputSetup(tempOperInput : String, tempIndex : Int){
         switch tempOperInput{
@@ -411,8 +415,4 @@ class ViewController: UIViewController {
             muldiOperIndex[tempIndex] = false
         }
     }
-
 }
-
-
-
