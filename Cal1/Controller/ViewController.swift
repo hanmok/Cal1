@@ -373,6 +373,10 @@ class ViewController: UIViewController {
         
     }
     
+    @IBAction func parenthesisPressed(_ sender: UIButton) {
+    }
+    
+    
    //MARK: - <#func setups
     func clear(){
         index = 0
