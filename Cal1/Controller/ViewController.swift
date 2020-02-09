@@ -22,7 +22,6 @@ class ViewController: UIViewController {
     
     var process = ""
     var DS = [0.0]
-    // a number made by numberStorage[]
     var operationStorage = [""]
     var calc = CalculatorBasic()
     
@@ -79,7 +78,7 @@ class ViewController: UIViewController {
             // set each input digit on the digitInput.
             if let digitInput = sender.currentTitle{
                 
-                //                tempDigits : temporal Storage for number until user finish set a number
+                // tempDigits : temporal Storage for number until user finish set a number
                 // ignore double dot on one number input. On usual case, this if statement execute.(usual np-a)
                 if !(digitInput == ".") || !(tempDigits[index].contains(".")){
                     
