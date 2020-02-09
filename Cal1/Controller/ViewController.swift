@@ -9,16 +9,13 @@ class ViewController: UIViewController {
     var freshDI : [Int] = [0] // 0 : newly made, 1: got UserInput, 2 : used
     
     var index = 0 // increase after pressing operation button.
-    var muldiOperIndex : [Bool] = [false] // true if it is x or / .
-    
-    var tempStorage : Int = 0
+    var muldiOperIndex = [false] // true if it is x or / .
+
     var tempDigits = [""] // save all digits to make a number ( in numberPresed)
-    
-    var loopBreaker = false
-    var dummyPasser = false
+
     var isFoundAns = false
     var clearAfterAns = false
-    var noNumberAfterOperator = false
+    var negativeSign = false
     
     var process = ""
     var DS = [0.0]
@@ -139,6 +136,9 @@ class ViewController: UIViewController {
                     answer.append(200) // for error checking
                     indexUpdate()
                     //in case no number input before operator input, replace prior one with new input.(Double Operator)(no index and answer update.)
+                }else if operInput == "-"{
+                    negativeSign = true
+                    process += "-"
                 }
                 
                 if index != 0 {
