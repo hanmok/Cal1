@@ -7,23 +7,25 @@ class ViewController: UIViewController {
     var answer : [[Double]] = [[100]] // the default value, which helps indicate the error.
     var freshAI = [[0]] // 0 :newly made, 1 : calculated, 2 : used
     var freshDI = [[0]] // 0 : newly made, 1: got UserInput, 2 : used
-    var DS = [[0.0]]
+    var DS = [[0.0]] // Double Numbers Storage
     var operationStorage = [[""]]
     var parenthesisStorage = [[Int]]()
     var pi = 0 // index for parenthesis.
-    var ni = 0 // increase after pressing operation button.
-    var muldiOperIndex = [false] // true if it is x or / .
+    var ni = [0] // increase after pressing operation button.
+    var niStartStorage = [Int]() // what is this for ?
+    var niEndStorage = [Int]()
+    var muldiOperIndex = [[false]] // true if it is x or / .
+    var DSindexPivot = [0] // change DS and OperationStorage Index when parenthesis close.
+
+    var operindexPivotHelper = [false]
+    var operindexPivot = [0]
+    var tempDigits = [""] // save all digits to make a number
     
-    var tempDigits = [""] // save all digits to make a number ( in numberPresed)
-    
-    var isFoundAns = false
     var clearAfterAns = false
     var negativeSign = false
     
     var process = ""
-    
-    
-    //    var calc = CalculatorBasic()
+    var DSshortIndex = 0
     
     @IBOutlet weak var processView: UITextView!
     @IBOutlet weak var resultView: UITextView!
@@ -52,142 +54,122 @@ class ViewController: UIViewController {
     //MARK: - <#func numberPressed
     @IBAction func numberPressed(_ sender: UIButton){
         print("clearAfterAns : \(clearAfterAns)")
-        print(" process : \( process)")
+        DSshortIndex = ni[pi] + DSindexPivot[pi]
         
         //clear states after got answer
         if clearAfterAns{
             clear()
-            //list for clear function.
-            //            ni = 0
-            //             DS = [[0]]
-            //             operationStorage = [""]
-            //            tempDigits = [""]
-            //            printProcess()
-            //            answer = [300] // for error check.
-            //            freshDI = [[0]]
-            //            muldiOperIndex = [false]
             resultView.text = ""
             processView.text = "0"
             process = ""
             clearAfterAns = false
-        }
+        }// end if clearAfterAns
         
         // if made number is not greater than it's limit
-        if DS[pi][ni] <= 1e18{ // starts DS[[ni]]
+        if DS[pi][DSshortIndex] <= 1e18{ // starts DS[pi][ni[pi]] <= 1e18
             
             // set each input digit on the digitInput.
             if let digitInput = sender.currentTitle{
                 
                 // tempDigits : temporal Storage for number until user finish set a number
                 // ignore double dot on one number input. On usual case, this if statement execute.(usual)
-                if !(digitInput == ".") || !(tempDigits[ni].contains(".")){
+                if !(digitInput == ".") || !(tempDigits[DSshortIndex].contains(".")){
                     
                     //var tempDigits = [""]
-                    // tempDigit[ni] : user number input just before digitInput
-                    // tempDigits[ni] == 00, 01, 02, ... 09
+                    // tempDigit[ni[pi]] : user number input just before digitInput
+                    // tempDigits[ni[pi]] == 00, 01, 02, ... 09
                     //if user input 01 02 03 .. 09 , automatically change it to 1, 2, 3, ... 9 (exceptional)
-                    if digitInput != "." && tempDigits[ni] == "0" {
-                        let str1 = tempDigits[ni].dropLast()
-                        tempDigits[ni] = String(str1)
-                        tempDigits[ni] += digitInput
+                    if digitInput != "." && tempDigits[DSshortIndex] == "0" {
+                        let str1 = tempDigits[DSshortIndex].dropLast()
+                        tempDigits[DSshortIndex] = String(str1)
+                        tempDigits[DSshortIndex] += digitInput
                         
                         let str2 = process.dropLast()
                         process = String(str2)
                         process += digitInput
                         
                         //when dot clicked without any number prior to, it automatically input 0 before dot. (. >> 0.0)(ex)
-                    }else if tempDigits[ni] == "" && digitInput == "."{
-                        tempDigits[ni] = "0."
+                    }else if tempDigits[DSshortIndex] == "" && digitInput == "."{
+                        tempDigits[DSshortIndex] = "0."
                         process += String("0.")
-                    }else if ni == 0 && negativeSign{
-                        tempDigits[ni] += "-"
-                        tempDigits[ni] += digitInput
+                    }else if ((DSshortIndex) == 0) && negativeSign{
+                        tempDigits[DSshortIndex] += "-"
+                        tempDigits[DSshortIndex] += digitInput
+                        process = "-"
                         process += String(digitInput)
                         negativeSign = false
                     }else { // usual case
-                        tempDigits[ni] += digitInput
+                        tempDigits[DSshortIndex] += digitInput
                         process += String(digitInput)
-                        print("process : \(process)")
                     }
-                    
-                }else if digitInput == "." && tempDigits[ni].contains("."){
+                } // end of Not doubleDot Case
+                else if digitInput == "." && tempDigits[DSshortIndex].contains("."){
+                }
+            } // end if let digitInput = sender.currentTitle{
+            
+            if tempDigits[DSshortIndex] != "0."{
+                if let safeDigits = Double(tempDigits[DSshortIndex]){
+                    DS[pi][DSshortIndex] = safeDigits
+                    freshDI[pi][DSshortIndex] = 1
                 }
             }
-            if tempDigits[ni] != "0."{
-                if let safeDigits = Double(tempDigits[ni]){
-                    DS[pi][ni] = safeDigits
-                    freshDI[pi][ni] = 1
-                }
-            }
-            //input tempDigits[ni] to  DS, with changing freshDI with 1 which means it recived a user input.
+            //input tempDigits[ni[pi]] to  DS, with changing freshDI with 1 which means it recived a user input.
             printProcess()
             //            processView.text =  process
-        } // end of // starts DS[[ni]]
+        } // end of DS[pi][ni[pi]] <= 1e18
     }
     
     //MARK: - <#func operationPressed
     @IBAction func operationPressed(_ sender: UIButton){
         if let operInput = sender.currentTitle{
-            print("pass a")
             //              abnormal case, no number input before operator button pressed.
-            if tempDigits[ni] == ""{
-                if ni == 0 && saveResult != nil{
+            if tempDigits[ni[pi]] == ""{
+                if ni[pi] == 0 && saveResult != nil{
                     clearAfterAns = false//why? to prevent reexcxcuteclear function in the numberPressed func.
                     clear()
-                    print("pass b")
                     
-                    DS[pi][ni] = saveResult!
-                    freshDI[pi][ni] = 1 //allocated 1 to freshDI cause it initialized with number not be changed.
-                    if (DS[pi][0] - Double(Int(DS[pi][0])) == 0){ process = String(format : "%.0f", DS[pi][0])
-                    }else {process = String(DS[pi][0])}
+                    DS[pi][ni[pi]] = saveResult!
+                    freshDI[pi][ni[pi]] = 1 //allocated 1 to freshDI cause it initialized with number not be changed.
+                    if (DS[pi][0] - Double(Int(DS[pi][0])) == 0){ process = String(format : "%.0f", DS[pi][0])}
+                    else {process = String(DS[pi][0])}
                     // edition needed to print it without decimal pojnt in case of this value is integer
                     
-                    operinputSetup(tempOperInput: operInput, tempi: ni)
-                    process += operationStorage[pi][ni]
+                    operinputSetup(tempOperInput: operInput, tempi: ni[pi])
+                    process += operationStorage[pi][ni[pi]]
                     answer[pi].append(200) // for error checking
                     indexUpdate()
                     printProcess()
-                    print("pass c")
-                    //in case no number input before operator input, replace prior one with new input.(Double Operator)(no index and answer update.)
-                }else if operInput == "-"{
+                    
+                } // end if ni == 0 && saveResult != nil{
+                else if ni[pi] == 0 && operInput == "-"{
                     negativeSign = true
-                    process += "-"
-                    print("process : \(process)")
-                }
-                if ni != 0 {
-                    //                    operinputSetup(tempOperInput: operInput, tempi: ni-1)
-                    operinputSetup(tempOperInput: operInput, tempi: ni-1)
+                    process = "-"
+                }else if ni[pi] == 0 && (operInput == "+" || operInput == "X" || operInput == "/"){
+                    process = ""
+                }//in case no number input before operator input, replace prior one with new input.(Double Operator)(no index and answer update.)
+                if ni[pi] != 0 {
+                    operinputSetup(tempOperInput: operInput, tempi: ni[pi]-1)
                     let str =  process.dropLast()
                     process = String(str)
-                    process += operationStorage[pi][ni-1]
+                    process += operationStorage[pi][ni[pi]-1]
                 }
                 // normal case, number input exist before operator input
-            } else if tempDigits[ni] != ""{
+            } else if tempDigits[ni[pi]] != ""{
                 
-                operinputSetup(tempOperInput: operInput, tempi: ni)
-                process += operationStorage[pi][ni]
+                operinputSetup(tempOperInput: operInput, tempi: ni[pi])
+                process += operationStorage[pi][ni[pi]]
                 answer[pi].append(200) // for error checking
                 indexUpdate()
-            }
+            } // tempDigigits[ni[pi]] != ""
             printProcess()
-        } //  if let operInput = sender.currentTitle ends.
+        } //  end of if let operInput = sender.currentTitle
     }
-    //list of indexUpdate()
-    //    muldiOperIndex.append(true)
-    //    freshDI.append(0)
-    //    freshAI.append(0)
-    //    operationStorage.append("")
-    //    DS.append(0)
-    //    tempDigits.append("")
-    //    ni += 1
-    
-    //    }
-    
+      //MARK: - <#func calculation
     func calculateAns(){//{d
         while pi >= 0 {
-            if ni != 0 {
-                for i in 0 ... ni-1 { // first for statement : for Operation == "x" or "/"
-                    if muldiOperIndex[i]{
+            if ni[pi] != 0 {
+                for i in 0 ... ni[pi]-1 { // first for statement : for Operation == "x" or "/"
+                    if muldiOperIndex[pi][i]{
                         if  freshDI[pi][i] == 1 && freshDI[pi][i+1] == 1{
                             //곱셈 , D[i]전항과 D[i+1]후항 존재, >> 두개 곱함.
                             if  operationStorage[pi][i] == "x" {
@@ -208,11 +190,10 @@ class ViewController: UIViewController {
                             result = answer[pi][i]; print("result2 (answer[[\(i)]]: \(result ?? answer[pi][i])")
                         }
                     }
-                }
+                } // end for i in 0 ... ni-1
                 
-                for i in 0 ... ni-1 {  //  muldiOperIndex == false begins. ( Operator == "+" or "-" // {c
-                    print("pass 1")
-                    if !muldiOperIndex[i]{ //{b
+                for i in 0 ... ni[pi]-1 {  //  muldiOperIndex == false begins. ( Operator == "+" or "-" // {c
+                    if !muldiOperIndex[pi][i]{ //{b
                         // + or - 연산
                         if freshDI[pi][i+1] == 1{
                             //+ 연산 >> D[i+1] 존재하는 경우.
@@ -220,19 +201,14 @@ class ViewController: UIViewController {
                                 //+ 연산 >> D[i+1] 존재하는 경우. >> D[i] 존재하는 경우.
                                 
                                 if  operationStorage[pi][i] == "+"{
-                                    print("pass4")
                                     print("answer[[\(i)]] =  DS[[\(i)]] +  DS[[\(i+1)]] : \(answer[pi][i]) =  \(DS[pi][i]) +  \(DS[pi][i+1])")
                                     answer[pi][i] =  DS[pi][i] +  DS[pi][i+1]
                                 } else if  operationStorage[pi][i] == "-"{
                                     answer[pi][i] =  DS[pi][i] -  DS[pi][i+1]
                                 }
-                                print("pass5")
                                 freshAI[pi][i] = 1 ; freshDI[pi][i] = 2 ; freshDI[pi][i+1] = 2
-                                print("pass7")
-//                                print("freshAI[\(i)] : \(freshAI[pi][i]), freshDI[\(i)] : \(freshDI[pi][i]), freshDI[\(i+1)] : \(freshDI[i+1])") 여기 라인 이상해 !!
-                                print("pass8")
+                                //                            print("freshAI[\(i)] : \(freshAI[pi][i]), freshDI[\(i)] : \(freshDI[pi][i]), freshDI[\(i+1)] : \(freshDI[i+1])") 여기 라인 이상해 !!
                                 result = answer[pi][i]; print("result5 (answer[[\(i)]]: \(result ?? answer[pi][i])")
-                                print("pass6")
                             } else if freshDI[pi][i] == 2{
                                 //+ 연산 >> D[i+1] 존재하는 경우. >> D[i] 존재 ㄴㄴ
                                 for k in 1 ... i{
@@ -250,7 +226,7 @@ class ViewController: UIViewController {
                             }
                         }else if freshDI[pi][i+1] == 2{
                             //  D[i+1] 존재 ㄴㄴ
-                            noLatterNum : for k in i ... ni-1 {
+                            noLatterNum : for k in i ... ni[pi]-1 {
                                 //if freshAI[k+1] found
                                 if freshAI[pi][k+1] == 1 {
                                     //  D[i+1] 존재 ㄴㄴ >>Ans[k](k :  i+1, ... ni) 존재 >>  DI[i] 존재
@@ -281,59 +257,41 @@ class ViewController: UIViewController {
                             }
                         }
                     }
+                } // end of all calculations.
+            }// end of n != 0 .
+            
+            if pi != 0{
+                pi -= 1
+                continue
+            }
+            
+            //let's find Answer !
+            for u in 0 ... ni[pi]
+            {
+                if freshAI[pi][u] == 1{
+                    clearAfterAns = true
+                    floatingNumberDecider(ans: answer[pi][u])
+                    break
+                    //                    floatingNumberDecider(ans: result!)
                 }
-                print("pass 2")
-                for u in 0 ... ni-1
-                {
-                    if freshAI[pi][u] == 1{
-                        if freshDI[pi][ni] == 0{
-                            let str2 =  process.dropLast()
-                            process = String(str2)
-                        }
-                        // if found ans, in case 5+=
-                        isFoundAns = true
-                        clearAfterAns = true
-                        floatingNumberDecider(ans: answer[pi][u])
-                        //                    floatingNumberDecider(ans: result!)
-                    }
-                }
-                // in case of not founding ans, which means only one number and operator were input
-                if !isFoundAns{
+                // in case of not finding ans, which means only one number and operator were input
+                if u == ni[pi]{
                     clearAfterAns = true
                     let str2 =  process.dropLast()
                     process = String(str2)
                     floatingNumberDecider(ans: DS[pi][0])
                 }
-                // 여기까지 ni != 0 인 경우 호출되는 함수 영역.
-                
-                //ni == 0 인 경우 호출되는 함수 .
-            }else {
-                clearAfterAns = true
-                floatingNumberDecider(ans: DS[pi][0])
+                print("f")
             }
-            print("pass 3")
             printProcess()
             clear()
-break
-        }
-        
+            break
+        } // while pi >= 0
     }// end of function calculateAns
     
     //MARK: - <#func clearPressed
     @IBAction func clearPressed(_ sender: UIButton) {
         clear()
-
-//        ni = 0
-//        pi = 0
-//        DS = [[0]]
-//        operationStorage = [[""]]
-//        tempDigits = [""]
-//        printProcess()
-//        answer = [[300]] // for error check.
-//        freshDI = [0]
-//        muldiOperIndex = [false]
-//        result = 0
-        
         resultView.text = ""
         processView.text = "0"
         saveResult = nil
@@ -342,49 +300,41 @@ break
         clearAfterAns = false
     }
     
-    @IBAction func parenthesisPressed(_ sender: UIButton) {
-        if let parenthe = sender.currentTitle{
-            if parenthe == "("{
-                pi += 1
-            }
-            process += parenthe
-            printProcess()
-        }
-    }
-    
-    
     //MARK: - <#func setups
     func clear(){
-        ni = 0
+        ni = [0]
         pi = 0
         DS = [[0]]
-        operationStorage = [[""]]
         tempDigits = [""]
         printProcess()
         answer = [[300]] // for error check.
         freshDI = [[0]]
-        muldiOperIndex = [false]
+        freshAI = [[0]]
+        operationStorage = [[""]]
+        muldiOperIndex = [[false]]
         result = 0
+        parenthesisStorage = [[0]]
+        DSindexPivot = [0]
         //        processView.text = "0"
         //         process = ""
         //        saveResult = nil // apply only when pressed clear Button
     }
     
     func indexUpdate(){
-        muldiOperIndex.append(true)
+        ni[pi] += 1
+        tempDigits.append("")
+        DS[pi].append(0)
         freshDI[pi].append(0)
         freshAI[pi].append(0)
+        muldiOperIndex[pi].append(true)
         operationStorage[pi].append("")
-        DS[pi].append(0)
-        
-        tempDigits.append("")
-        ni += 1
     }
     
     func printProcess(){
         processView.text = process
     }
     
+    //print up to 6 floating places
     func floatingNumberDecider(ans : Double){
         var escape = false
         for i in 0 ... 6{
@@ -402,23 +352,52 @@ break
             saveResult = ans
         }
     }
-    //print up to 6 floating places
+    
     
     @IBAction func ansPressed(_ sender: UIButton) {
         calculateAns()
     }
     
     func operinputSetup(tempOperInput : String, tempi : Int){
+        let tempiPivot = tempi + operindexPivot[pi]
         switch tempOperInput{
-        case "+" :  operationStorage[pi][tempi] = "+"
-        case "X" :  operationStorage[pi][tempi] = "x"
-        case "-" :  operationStorage[pi][tempi] = "-"
-        case "/" :  operationStorage[pi][tempi] = "/"
-        default: print("operationStorage[\(tempi)] :\(operationStorage[pi][tempi]) ")
+        case "+" :  operationStorage[pi][tempiPivot] = "+"
+        case "X" :  operationStorage[pi][tempiPivot] = "x"
+        case "-" :  operationStorage[pi][tempiPivot] = "-"
+        case "/" :  operationStorage[pi][tempiPivot] = "/"
+        default: print("operationStorage[\(tempiPivot)] :\(operationStorage[pi][tempiPivot]) ")
         }
-        if  operationStorage[pi][tempi] == "x" ||  operationStorage[pi][tempi] == "/"{
-            muldiOperIndex[tempi] = true}
-        else if operationStorage[pi][tempi] == "+" ||  operationStorage[pi][tempi] == "-"{
-            muldiOperIndex[tempi] = false}
+        if  operationStorage[pi][tempiPivot] == "x" ||  operationStorage[pi][tempiPivot] == "/"{
+            muldiOperIndex[pi][tempiPivot] = true}
+        else if operationStorage[pi][tempiPivot] == "+" ||  operationStorage[pi][tempiPivot] == "-"{
+            muldiOperIndex[pi][tempiPivot] = false}
+    }
+    
+    @IBAction func parenthesisPressed(_ sender: UIButton) {
+        if let parenthe = sender.currentTitle{
+            if parenthe == "("{
+                niStartStorage[pi] = ni[pi]
+                ni.append(0)
+                pi += 1
+                operindexPivotHelper.append(false)
+                operindexPivot.append(0)
+                process += parenthe
+                if operindexPivotHelper[pi]{
+                    operindexPivot[pi] += 1
+                }
+            }else if (pi != 0) && parenthe == ")"{
+                DS[pi-1].append(0)
+                freshDI[pi-1].append(0)
+                operationStorage[pi].append("")
+                muldiOperIndex[pi].append(false)
+                operindexPivotHelper[pi] = true
+                pi -= 1
+                DSindexPivot.append(0)
+                DSindexPivot[pi] += 1
+                niEndStorage[pi] = ni[pi]
+                process += parenthe
+            }
+            printProcess()
+        }
     }
 }
