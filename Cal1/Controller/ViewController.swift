@@ -4,23 +4,26 @@ import UIKit
 class ViewController: UIViewController {
     var saveResult : Double? // if one want operate after press ans button, this value will come up and used.
     var result : Double? // to be printed, one of the answer array.
-    var answer : [Double] = [100] // the default value, which helps indicate the error.
-    var freshAI : [Int] = [0] // 0 :newly made, 1 : calculated, 2 : used
-    var freshDI : [Int] = [0] // 0 : newly made, 1: got UserInput, 2 : used
-    
-    var index = 0 // increase after pressing operation button.
+    var answer : [[Double]] = [[100]] // the default value, which helps indicate the error.
+    var freshAI = [[0]] // 0 :newly made, 1 : calculated, 2 : used
+    var freshDI = [[0]] // 0 : newly made, 1: got UserInput, 2 : used
+    var DS = [[0.0]]
+    var operationStorage = [[""]]
+    var parenthesisStorage = [[Int]]()
+    var pi = 0 // index for parenthesis.
+    var ni = 0 // increase after pressing operation button.
     var muldiOperIndex = [false] // true if it is x or / .
-
+    
     var tempDigits = [""] // save all digits to make a number ( in numberPresed)
-
+    
     var isFoundAns = false
     var clearAfterAns = false
     var negativeSign = false
     
     var process = ""
-    var DS = [0.0]
-    var operationStorage = [""]
-    var calc = CalculatorBasic()
+    
+    
+    //    var calc = CalculatorBasic()
     
     @IBOutlet weak var processView: UITextView!
     @IBOutlet weak var resultView: UITextView!
@@ -55,13 +58,13 @@ class ViewController: UIViewController {
         if clearAfterAns{
             clear()
             //list for clear function.
-            //            index = 0
-            //             DS = [0]
+            //            ni = 0
+            //             DS = [[0]]
             //             operationStorage = [""]
             //            tempDigits = [""]
             //            printProcess()
             //            answer = [300] // for error check.
-            //            freshDI = [0]
+            //            freshDI = [[0]]
             //            muldiOperIndex = [false]
             resultView.text = ""
             processView.text = "0"
@@ -70,91 +73,100 @@ class ViewController: UIViewController {
         }
         
         // if made number is not greater than it's limit
-        if  DS[index] <= 1e18{
+        if DS[pi][ni] <= 1e18{ // starts DS[[ni]]
             
             // set each input digit on the digitInput.
             if let digitInput = sender.currentTitle{
                 
                 // tempDigits : temporal Storage for number until user finish set a number
-                // ignore double dot on one number input. On usual case, this if statement execute.(usual np-a)
-                if !(digitInput == ".") || !(tempDigits[index].contains(".")){
+                // ignore double dot on one number input. On usual case, this if statement execute.(usual)
+                if !(digitInput == ".") || !(tempDigits[ni].contains(".")){
                     
-                    //                    tempDigit[index] : user number input just before digitInput
-                    //if user input 01 02 03 .. 09 , automatically change it to 1, 2, 3, ... 9 (ex)
-                    if digitInput != "." && tempDigits[index] == "0" { // tempDigits[index] == 00, 01, 02, ... 09
-                        //var tempDigits = [""]
-                        
-                        let str1 = tempDigits[index].dropLast()
-                        tempDigits[index] = String(str1)
-                        tempDigits[index] += digitInput
+                    //var tempDigits = [""]
+                    // tempDigit[ni] : user number input just before digitInput
+                    // tempDigits[ni] == 00, 01, 02, ... 09
+                    //if user input 01 02 03 .. 09 , automatically change it to 1, 2, 3, ... 9 (exceptional)
+                    if digitInput != "." && tempDigits[ni] == "0" {
+                        let str1 = tempDigits[ni].dropLast()
+                        tempDigits[ni] = String(str1)
+                        tempDigits[ni] += digitInput
                         
                         let str2 = process.dropLast()
                         process = String(str2)
                         process += digitInput
                         
-                        //                when dot clicked without any number prior to, it automatically input 0 before dot. (. >> 0.0)(ex)
-                    }else if tempDigits[index] == "" && digitInput == "."{
-                        
-                        tempDigits[index] = "0."
+                        //when dot clicked without any number prior to, it automatically input 0 before dot. (. >> 0.0)(ex)
+                    }else if tempDigits[ni] == "" && digitInput == "."{
+                        tempDigits[ni] = "0."
                         process += String("0.")
-                    } else { // usual case
-                        
-                        tempDigits[index] += digitInput
+                    }else if ni == 0 && negativeSign{
+                        tempDigits[ni] += "-"
+                        tempDigits[ni] += digitInput
                         process += String(digitInput)
+                        negativeSign = false
+                    }else { // usual case
+                        tempDigits[ni] += digitInput
+                        process += String(digitInput)
+                        print("process : \(process)")
                     }
-                }else if digitInput == "." && tempDigits[index].contains("."){
+                    
+                }else if digitInput == "." && tempDigits[ni].contains("."){
                 }
             }
-            if tempDigits[index] != "0."{
-                if let safeDigits = Double(tempDigits[index]){
-                    DS[index] = safeDigits
-                    freshDI[index] = 1
+            if tempDigits[ni] != "0."{
+                if let safeDigits = Double(tempDigits[ni]){
+                    DS[pi][ni] = safeDigits
+                    freshDI[pi][ni] = 1
                 }
             }
-            //input tempDigits[index] to  DS, with changing freshDI with 1 which means it recived a user input.
+            //input tempDigits[ni] to  DS, with changing freshDI with 1 which means it recived a user input.
             printProcess()
             //            processView.text =  process
-        }
+        } // end of // starts DS[[ni]]
     }
     
     //MARK: - <#func operationPressed
     @IBAction func operationPressed(_ sender: UIButton){
         if let operInput = sender.currentTitle{
+            print("pass a")
             //              abnormal case, no number input before operator button pressed.
-            if tempDigits[index] == ""{
-                if index == 0 && saveResult != nil{
+            if tempDigits[ni] == ""{
+                if ni == 0 && saveResult != nil{
                     clearAfterAns = false//why? to prevent reexcxcuteclear function in the numberPressed func.
                     clear()
-                    DS[0] = saveResult!
-                    freshDI[index] = 1 //allocated 1 to freshDI cause it initialized with number not be changed.
-                    if (DS[0] - Double(Int(DS[0])) == 0){ process = String(format : "%.0f", DS[0])
-                    }else {process = String(DS[0])}
+                    print("pass b")
+                    
+                    DS[pi][ni] = saveResult!
+                    freshDI[pi][ni] = 1 //allocated 1 to freshDI cause it initialized with number not be changed.
+                    if (DS[pi][0] - Double(Int(DS[pi][0])) == 0){ process = String(format : "%.0f", DS[pi][0])
+                    }else {process = String(DS[pi][0])}
                     // edition needed to print it without decimal pojnt in case of this value is integer
                     
-                    operinputSetup(tempOperInput: operInput, tempIndex: index)
-                    process +=  operationStorage[index]
-                    answer.append(200) // for error checking
+                    operinputSetup(tempOperInput: operInput, tempi: ni)
+                    process += operationStorage[pi][ni]
+                    answer[pi].append(200) // for error checking
                     indexUpdate()
+                    printProcess()
+                    print("pass c")
                     //in case no number input before operator input, replace prior one with new input.(Double Operator)(no index and answer update.)
                 }else if operInput == "-"{
                     negativeSign = true
                     process += "-"
+                    print("process : \(process)")
                 }
-                
-                if index != 0 {
-                    //                    operinputSetup(tempOperInput: operInput, tempIndex: index-1)
-                    operinputSetup(tempOperInput: operInput, tempIndex: index-1)
-                    
+                if ni != 0 {
+                    //                    operinputSetup(tempOperInput: operInput, tempi: ni-1)
+                    operinputSetup(tempOperInput: operInput, tempi: ni-1)
                     let str =  process.dropLast()
                     process = String(str)
-                    process += operationStorage[index-1]
+                    process += operationStorage[pi][ni-1]
                 }
                 // normal case, number input exist before operator input
-            } else if tempDigits[index] != ""{
+            } else if tempDigits[ni] != ""{
                 
-                operinputSetup(tempOperInput: operInput, tempIndex: index)
-                process += operationStorage[index]
-                answer.append(200) // for error checking
+                operinputSetup(tempOperInput: operInput, tempi: ni)
+                process += operationStorage[pi][ni]
+                answer[pi].append(200) // for error checking
                 indexUpdate()
             }
             printProcess()
@@ -167,93 +179,102 @@ class ViewController: UIViewController {
     //    operationStorage.append("")
     //    DS.append(0)
     //    tempDigits.append("")
-    //    index += 1
+    //    ni += 1
     
     //    }
     
     func calculateAns(){//{d
-        if index != 0 {
-            for i in 0 ... index-1 { // first for statement : for Operation == "x" or "/"
-                if muldiOperIndex[i]{
-                    if  freshDI[i] == 1 && freshDI[i+1] == 1{
-                        //곱셈 , D[i]전항과 D[i+1]후항 존재, >> 두개 곱함.
-                        if  operationStorage[i] == "x" {
-                            answer[i] =  DS[i] *  DS[i+1]
-                        }else if  operationStorage[i] == "/"{
-                            answer[i] =  DS[i] /  DS[i+1]
+        while pi >= 0 {
+            if ni != 0 {
+                for i in 0 ... ni-1 { // first for statement : for Operation == "x" or "/"
+                    if muldiOperIndex[i]{
+                        if  freshDI[pi][i] == 1 && freshDI[pi][i+1] == 1{
+                            //곱셈 , D[i]전항과 D[i+1]후항 존재, >> 두개 곱함.
+                            if  operationStorage[pi][i] == "x" {
+                                answer[pi][i] =  DS[pi][i] *  DS[pi][i+1]
+                            }else if  operationStorage[pi][i] == "/"{
+                                answer[pi][i] =  DS[pi][i] /  DS[pi][i+1]
+                            }
+                            freshAI[pi][i] = 1 ; freshDI[pi][i] = 2 ; freshDI[pi][i+1] = 2;
+                            result = answer[pi][i]; print("result1 (answer[[\(i)]]: \(result ?? answer[pi][i])")
+                        }else if  freshDI[pi][i] == 2 && freshDI[pi][i+1] == 1{
+                            //곱셈, D[i]전항 존재 안할 때 >> A[i-1] * D[i+1]
+                            if  operationStorage[pi][i] == "x"{
+                                answer[pi][i] = answer[pi][i-1] *  DS[pi][i+1]
+                            }else if  operationStorage[pi][i] == "/"{
+                                answer[pi][i] = answer[pi][i-1] /  DS[pi][i+1]
+                            }
+                            freshAI[pi][i] = 1;freshAI[pi][i-1] = 2 ; freshDI[pi][i+1] = 2
+                            result = answer[pi][i]; print("result2 (answer[[\(i)]]: \(result ?? answer[pi][i])")
                         }
-                        freshAI[i] = 1 ; freshDI[i] = 2 ; freshDI[i+1] = 2;
-                        result = answer[i]; print("result1 (answer[\(i)]: \(result ?? answer[i])")
-                    }else if  freshDI[i] == 2 && freshDI[i+1] == 1{
-                        //곱셈, D[i]전항 존재 안할 때 >> A[i-1] * D[i+1]
-                        if  operationStorage[i] == "x"{
-                            answer[i] = answer[i-1] *  DS[i+1]
-                        }else if  operationStorage[i] == "/"{
-                            answer[i] = answer[i-1] /  DS[i+1]
-                        }
-                        freshAI[i] = 1;freshAI[i-1] = 2 ; freshDI[i+1] = 2
-                        result = answer[i]; print("result2 (answer[\(i)]: \(result ?? answer[i])")
                     }
                 }
-            }
-            
-            for i in 0 ... index-1 {  //  muldiOperIndex == false begins. ( Operator == "+" or "-" // {c
-                if !muldiOperIndex[i]{ //{b
-                    // + or - 연산
-                    if freshDI[i+1] == 1{
-                        //+ 연산 >> D[i+1] 존재하는 경우.
-                        if freshDI[i] == 1{
-                            //+ 연산 >> D[i+1] 존재하는 경우. >> D[i] 존재하는 경우.
-                            if  operationStorage[i] == "+"{
-                                print("answer[\(i)] =  DS[\(i)] +  DS[\(i+1)] : \(answer[i]) =  \(DS[i]) +  \(DS[i+1])")
-                                answer[i] =  DS[i] +  DS[i+1]
-                            } else if  operationStorage[i] == "-"{
-                                answer[i] =  DS[i] -  DS[i+1]
-                            }
-                            freshAI[i] = 1 ; freshDI[i] = 2 ; freshDI[i+1] = 2
-                            print("freshAI[\(i)] : \(freshAI[i]), freshDI[\(i)] : \(freshDI[i]), freshDI[\(i+1)] : \(freshDI[i+1])")
-                            result = answer[i]; print("result5 (answer[\(i)]: \(result ?? answer[i])")
-                        } else if freshDI[i] == 2{
-                            //+ 연산 >> D[i+1] 존재하는 경우. >> D[i] 존재 ㄴㄴ
-                            for k in 1 ... i{
-                                //freshAI[i-k] 찾은 경우
-                                if (freshAI[i-k] == 1){
-                                    if  operationStorage[i] == "+"{
-                                        answer[i] = answer[i-k] +  DS[i+1]
-                                    }else if  operationStorage[i] == "-"{
-                                        answer[i] = answer[i-k] -  DS[i+1]
+                
+                for i in 0 ... ni-1 {  //  muldiOperIndex == false begins. ( Operator == "+" or "-" // {c
+                    print("pass 1")
+                    if !muldiOperIndex[i]{ //{b
+                        // + or - 연산
+                        if freshDI[pi][i+1] == 1{
+                            //+ 연산 >> D[i+1] 존재하는 경우.
+                            if freshDI[pi][i] == 1{
+                                //+ 연산 >> D[i+1] 존재하는 경우. >> D[i] 존재하는 경우.
+                                
+                                if  operationStorage[pi][i] == "+"{
+                                    print("pass4")
+                                    print("answer[[\(i)]] =  DS[[\(i)]] +  DS[[\(i+1)]] : \(answer[pi][i]) =  \(DS[pi][i]) +  \(DS[pi][i+1])")
+                                    answer[pi][i] =  DS[pi][i] +  DS[pi][i+1]
+                                } else if  operationStorage[pi][i] == "-"{
+                                    answer[pi][i] =  DS[pi][i] -  DS[pi][i+1]
+                                }
+                                print("pass5")
+                                freshAI[pi][i] = 1 ; freshDI[pi][i] = 2 ; freshDI[pi][i+1] = 2
+                                print("pass7")
+//                                print("freshAI[\(i)] : \(freshAI[pi][i]), freshDI[\(i)] : \(freshDI[pi][i]), freshDI[\(i+1)] : \(freshDI[i+1])") 여기 라인 이상해 !!
+                                print("pass8")
+                                result = answer[pi][i]; print("result5 (answer[[\(i)]]: \(result ?? answer[pi][i])")
+                                print("pass6")
+                            } else if freshDI[pi][i] == 2{
+                                //+ 연산 >> D[i+1] 존재하는 경우. >> D[i] 존재 ㄴㄴ
+                                for k in 1 ... i{
+                                    //freshAI[i-k] 찾은 경우
+                                    if (freshAI[pi][i-k] == 1){
+                                        if  operationStorage[pi][i] == "+"{
+                                            answer[pi][i] = answer[pi][i-k] +  DS[pi][i+1]
+                                        }else if  operationStorage[pi][i] == "-"{
+                                            answer[pi][i] = answer[pi][i-k] -  DS[pi][i+1]
+                                        }
+                                        freshAI[pi][i] = 1;freshAI[pi][i-k] = 2 ; freshDI[pi][i+1] = 2
+                                        result = answer[pi][i]; print("result6 : (answer[[\(i)]]\(result ?? answer[pi][i])")
                                     }
-                                    freshAI[i] = 1;freshAI[i-k] = 2 ; freshDI[i+1] = 2
-                                    result = answer[i]; print("result6 : (answer[\(i)]\(result ?? answer[i])")
                                 }
                             }
-                        }
-                    }else if freshDI[i+1] == 2{
-                        //  D[i+1] 존재 ㄴㄴ
-                        noLatterNum : for k in i ... index-1 {
-                            //if freshAI[k+1] found
-                            if freshAI[k+1] == 1 {
-                                //  D[i+1] 존재 ㄴㄴ >>Ans[k](k :  i+1, ... index) 존재 >>  DI[i] 존재
-                                if freshDI[i] == 1{
-                                    if  operationStorage[i] == "+"{
-                                        answer[i] =  DS[i] + answer[k+1]}
-                                    else if  operationStorage[i] == "-"{
-                                        answer[i] =  DS[i] - answer[k+1]}
-                                    freshAI[i] = 1; freshDI[i] = 2; freshAI[k+1] = 2;
-                                    break noLatterNum
-                                    //+연산 >> D[i+1] 존재 ㄴㄴ >>Ans[k](k : i+1, i+2, ... index-1 존재 >> D[i] 존재 ㄴㄴ
-                                }else if freshDI[i] == 2{
-                                    foundPriorAns : for j in 1 ... i{
-                                        if (freshAI[i-j] == 1){
-                                            //+연산 >> D[i+1] 존재 ㄴㄴ >>Ans[k](k>i) 존재 >> D[i] 존재 ㄴㄴ >> A[i-j](i-j < i) 존재
-                                            if  operationStorage[i] == "+"{
-                                                answer[i] = answer[i-j] + answer[k+1]
-                                            } else if  operationStorage[i] == "-"{
-                                                answer[i] = answer[i-j] - answer[k+1]
+                        }else if freshDI[pi][i+1] == 2{
+                            //  D[i+1] 존재 ㄴㄴ
+                            noLatterNum : for k in i ... ni-1 {
+                                //if freshAI[k+1] found
+                                if freshAI[pi][k+1] == 1 {
+                                    //  D[i+1] 존재 ㄴㄴ >>Ans[k](k :  i+1, ... ni) 존재 >>  DI[i] 존재
+                                    if freshDI[pi][i] == 1{
+                                        if  operationStorage[pi][i] == "+"{
+                                            answer[pi][i] =  DS[pi][i] + answer[pi][k+1]}
+                                        else if  operationStorage[pi][i] == "-"{
+                                            answer[pi][i] =  DS[pi][i] - answer[pi][k+1]}
+                                        freshAI[pi][i] = 1; freshDI[pi][i] = 2; freshAI[pi][k+1] = 2;
+                                        break noLatterNum
+                                        //+연산 >> D[i+1] 존재 ㄴㄴ >>Ans[k](k : i+1, i+2, ... ni-1 존재 >> D[i] 존재 ㄴㄴ
+                                    }else if freshDI[pi][i] == 2{
+                                        foundPriorAns : for j in 1 ... i{
+                                            if (freshAI[pi][i-j] == 1){
+                                                //+연산 >> D[i+1] 존재 ㄴㄴ >>Ans[k](k>i) 존재 >> D[i] 존재 ㄴㄴ >> A[i-j](i-j < i) 존재
+                                                if  operationStorage[pi][i] == "+"{
+                                                    answer[pi][i] = answer[pi][i-j] + answer[pi][k+1]
+                                                } else if  operationStorage[pi][i] == "-"{
+                                                    answer[pi][i] = answer[pi][i-j] - answer[pi][k+1]
+                                                }
+                                                freshAI[pi][i] = 1; freshAI[pi][i-j] = 2; freshAI[pi][k+1] = 2
+                                                result = answer[pi][i]; print("result8 (answer[[\(i)]]: \(result ?? answer[pi][i])")
+                                                break noLatterNum
                                             }
-                                            freshAI[i] = 1; freshAI[i-j] = 2; freshAI[k+1] = 2
-                                            result = answer[i]; print("result8 (answer[\(i)]: \(result ?? answer[i])")
-                                            break noLatterNum
                                         }
                                     }
                                 }
@@ -261,70 +282,87 @@ class ViewController: UIViewController {
                         }
                     }
                 }
-            }
-            for u in 0 ... index-1
-            {
-                if freshAI[u] == 1{
-                    if freshDI[index] == 0{
-                        let str2 =  process.dropLast()
-                        process = String(str2)
+                print("pass 2")
+                for u in 0 ... ni-1
+                {
+                    if freshAI[pi][u] == 1{
+                        if freshDI[pi][ni] == 0{
+                            let str2 =  process.dropLast()
+                            process = String(str2)
+                        }
+                        // if found ans, in case 5+=
+                        isFoundAns = true
+                        clearAfterAns = true
+                        floatingNumberDecider(ans: answer[pi][u])
+                        //                    floatingNumberDecider(ans: result!)
                     }
-                    // if found ans, in case 5+=
-                    isFoundAns = true
-                    clearAfterAns = true
-                    floatingNumberDecider(ans: answer[u])
-//                    floatingNumberDecider(ans: result!)
                 }
-            }
-            // in case of not founding ans, which means only one number and operator were input
-            if !isFoundAns{
+                // in case of not founding ans, which means only one number and operator were input
+                if !isFoundAns{
+                    clearAfterAns = true
+                    let str2 =  process.dropLast()
+                    process = String(str2)
+                    floatingNumberDecider(ans: DS[pi][0])
+                }
+                // 여기까지 ni != 0 인 경우 호출되는 함수 영역.
+                
+                //ni == 0 인 경우 호출되는 함수 .
+            }else {
                 clearAfterAns = true
-                let str2 =  process.dropLast()
-                process = String(str2)
-                floatingNumberDecider(ans:  DS[0])
+                floatingNumberDecider(ans: DS[pi][0])
             }
-            // 여기까지 index != 0 인 경우 호출되는 함수 영역.
-            
-            //index == 0 인 경우 호출되는 함수 .
-        }else {
-            clearAfterAns = true
-            floatingNumberDecider(ans:  DS[0])
+            print("pass 3")
+            printProcess()
+            clear()
+break
         }
-        printProcess()
-        clear()
-    } // end of function calculateAns
-    
+        
+    }// end of function calculateAns
     
     //MARK: - <#func clearPressed
     @IBAction func clearPressed(_ sender: UIButton) {
         clear()
-        //        index = 0
-        //        DS = [0]
-        //        operationStorage = [""]
-        //        tempDigits = [""]
-        //        printProcess()
-        //        answer = [300] // for error check.
-        //        freshDI = [0]
-        //        muldiOperIndex = [false]
+
+//        ni = 0
+//        pi = 0
+//        DS = [[0]]
+//        operationStorage = [[""]]
+//        tempDigits = [""]
+//        printProcess()
+//        answer = [[300]] // for error check.
+//        freshDI = [0]
+//        muldiOperIndex = [false]
+//        result = 0
+        
         resultView.text = ""
         processView.text = "0"
         saveResult = nil
         process = ""
+        negativeSign = false
+        clearAfterAns = false
     }
     
     @IBAction func parenthesisPressed(_ sender: UIButton) {
+        if let parenthe = sender.currentTitle{
+            if parenthe == "("{
+                pi += 1
+            }
+            process += parenthe
+            printProcess()
+        }
     }
     
     
     //MARK: - <#func setups
     func clear(){
-        index = 0
-        DS = [0]
-        operationStorage = [""]
+        ni = 0
+        pi = 0
+        DS = [[0]]
+        operationStorage = [[""]]
         tempDigits = [""]
         printProcess()
-        answer = [300] // for error check.
-        freshDI = [0]
+        answer = [[300]] // for error check.
+        freshDI = [[0]]
         muldiOperIndex = [false]
         result = 0
         //        processView.text = "0"
@@ -334,12 +372,13 @@ class ViewController: UIViewController {
     
     func indexUpdate(){
         muldiOperIndex.append(true)
-        freshDI.append(0)
-        freshAI.append(0)
-        operationStorage.append("")
-        DS.append(0)
+        freshDI[pi].append(0)
+        freshAI[pi].append(0)
+        operationStorage[pi].append("")
+        DS[pi].append(0)
+        
         tempDigits.append("")
-        index += 1
+        ni += 1
     }
     
     func printProcess(){
@@ -348,7 +387,7 @@ class ViewController: UIViewController {
     
     func floatingNumberDecider(ans : Double){
         var escape = false
-        for i in 0 ... 10{
+        for i in 0 ... 6{
             let decider = Int(ans * pow(10.0, Double(i)))
             if (ans * pow(10.0,Double(i)) - Double(decider) == 0) && !escape {
                 escape = true
@@ -363,25 +402,23 @@ class ViewController: UIViewController {
             saveResult = ans
         }
     }
-    //print up to 6 digits after floating poing depending on the result
-    
+    //print up to 6 floating places
     
     @IBAction func ansPressed(_ sender: UIButton) {
         calculateAns()
     }
     
-    func operinputSetup(tempOperInput : String, tempIndex : Int){
+    func operinputSetup(tempOperInput : String, tempi : Int){
         switch tempOperInput{
-        case "+" :  operationStorage[tempIndex] = "+"
-        case "X" :  operationStorage[tempIndex] = "x"
-        case "-" :  operationStorage[tempIndex] = "-"
-        case "/" :  operationStorage[tempIndex] = "/"
-        default: print("operationStorage[\(tempIndex)] :\(operationStorage[tempIndex]) ")
+        case "+" :  operationStorage[pi][tempi] = "+"
+        case "X" :  operationStorage[pi][tempi] = "x"
+        case "-" :  operationStorage[pi][tempi] = "-"
+        case "/" :  operationStorage[pi][tempi] = "/"
+        default: print("operationStorage[\(tempi)] :\(operationStorage[pi][tempi]) ")
         }
-        if  operationStorage[tempIndex] == "x" ||  operationStorage[tempIndex] == "/"{
-            muldiOperIndex[tempIndex] = true
-        } else if  operationStorage[tempIndex] == "+" ||  operationStorage[tempIndex] == "-"{
-            muldiOperIndex[tempIndex] = false
-        }
+        if  operationStorage[pi][tempi] == "x" ||  operationStorage[pi][tempi] == "/"{
+            muldiOperIndex[tempi] = true}
+        else if operationStorage[pi][tempi] == "+" ||  operationStorage[pi][tempi] == "-"{
+            muldiOperIndex[tempi] = false}
     }
 }
