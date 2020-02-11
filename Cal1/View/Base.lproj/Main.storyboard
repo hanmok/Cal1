@@ -251,6 +251,7 @@
                     </view>
                     <connections>
                         <outlet property="ans" destination="2t0-S0-iPW" id="GbH-F6-XrQ"/>
+                        <outlet property="leftParenthesis" destination="FMl-ah-OKb" id="UIa-7W-ynM"/>
                         <outlet property="num0" destination="jKT-ru-aLn" id="cqe-sH-xo5"/>
                         <outlet property="num1" destination="08M-bL-faB" id="luA-Fw-5aR"/>
                         <outlet property="num2" destination="K1H-Vt-oBG" id="Mo6-Eg-9ld"/>
@@ -264,6 +265,7 @@
                         <outlet property="operPlus" destination="TRT-Xz-6wv" id="frH-hr-Cfb"/>
                         <outlet property="processView" destination="WvN-6N-ggc" id="MdZ-Ei-Cr8"/>
                         <outlet property="resultView" destination="gwf-sP-Gag" id="9MI-TQ-XHH"/>
+                        <outlet property="rightParenthesis" destination="rnb-zM-EFl" id="ODh-M0-fzc"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
