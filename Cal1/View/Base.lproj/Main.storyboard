@@ -125,7 +125,7 @@
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" showsTouchWhenHighlighted="YES" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FMl-ah-OKb" userLabel="(">
                                                 <rect key="frame" x="300" y="0.0" width="75" height="104"/>
                                                 <fontDescription key="fontDescription" name="ChalkboardSE-Regular" family="Chalkboard SE" pointSize="50"/>
-                                                <state key="normal" title="( "/>
+                                                <state key="normal" title="("/>
                                                 <connections>
                                                     <action selector="parenthesisPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="43A-no-2cd"/>
                                                 </connections>
