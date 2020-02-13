@@ -55,7 +55,7 @@ class ViewController: UIViewController {
         //stateTempDigits(pointNumber: 1)
         //stateCheck(pointNumber: 1)
         //clear states after got answer
-        if clearAfterAns{
+        if clearAfterAns{//modification needed.
             clear()
             resultView.text = ""
             processView.text = "0"
@@ -64,9 +64,8 @@ class ViewController: UIViewController {
         }// end if clearAfterAns
         
         // if made number is not greater than it's limit
-        print("Here?")
         if DS[pi][ni[pi]] <= 1e18{ // starts DS[pi][ni[pi]] <= 1e18
-            print("여기인가?")
+         
             // set each input digit on the digitInput.
             if let digitInput = sender.currentTitle{
                 //stateTempDigits(pointNumber: 2)
@@ -165,12 +164,7 @@ class ViewController: UIViewController {
                 // normal case, number input exist before operator input
             } // if tempDitis[pi][ni[pi]] == "" else~ (the other case)
             else if tempDigits[pi][ni[pi]] != ""{
-                print("check!!")
-                print("ni : \(ni)")
-                print("tempDigits : \(tempDigits)")
-                print("operationStorage : \(operationStorage)")
                 operinputSetup(tempOperInput: operInput, tempi: ni[pi])
-                 print("operationStorage : \(operationStorage)")
                 process += operationStorage[pi][ni[pi]]
                 answer[pi].append(200) // for error checking
                 indexUpdate()
@@ -187,9 +181,7 @@ class ViewController: UIViewController {
         niStartStorage[0].append(0)
         niEndStorage[0].append(ni[0])
         pi = piMax
-        print("path1")
         while pi >= 0 {
-                    print("path2")
             for a in 1 ... niStartStorage[pi].count-1{
                 
                 for i in niStartStorage[pi][a] ..< niEndStorage[pi][a]{
@@ -202,9 +194,8 @@ class ViewController: UIViewController {
                             }else if  operationStorage[pi][i] == "/"{
                                 answer[pi][i] =  DS[pi][i] /  DS[pi][i+1]
                             }
-                            freshAI[pi][i] = 1 ; freshDI[pi][i] = 2 ; freshDI[pi][i+1] = 2;print("p 8")
+                            freshAI[pi][i] = 1 ; freshDI[pi][i] = 2 ; freshDI[pi][i+1] = 2
                             result = answer[pi][i]
-//                            print("result1 (answer[[\(i)]]: \(result ?? answer[pi][i])")
                         }else if  freshDI[pi][i] == 2 && freshDI[pi][i+1] == 1{
                             //곱셈, D[i]전항 존재 안할 때 >> A[i-1] * D[i+1]
                             if  operationStorage[pi][i] == "x"{
@@ -214,20 +205,13 @@ class ViewController: UIViewController {
                             }
                             freshAI[pi][i] = 1;freshAI[pi][i-1] = 2 ; freshDI[pi][i+1] = 2
                             result = answer[pi][i];
-//                            print("result2 (answer[[\(i)]]: \(result ?? answer[pi][i])")
                         }
                     }
                 } // end for i in niStartStorage[pi][a] ... niEndStorage[pi][a]{
-                        print("path7")
-                print("freshDI : \(freshDI)")
-                print("niStartStorage : \(niStartStorage)")
-                print("niEndStorage : \(niEndStorage)")
-                print("muldiOperIndex : \(muldiOperIndex)")
+
                 for i in niStartStorage[pi][a] ..< niEndStorage[pi][a]{  //  muldiOperIndex == false begins. ( Operator == "+" or "-" // {c
                     if !muldiOperIndex[pi][i]{ //{b
                         // + or - 연산
-                        print("p1")
-                        print("freshDI : \(freshDI)")
                         if freshDI[pi][i+1] == 1{
                             print("p2")
                             //+ 연산 >> D[i+1] 존재하는 경우.
@@ -241,9 +225,7 @@ class ViewController: UIViewController {
                                 }
                                 freshAI[pi][i] = 1 ; freshDI[pi][i] = 2 ; freshDI[pi][i+1] = 2
                                 //                            print("freshAI[\(i)] : \(freshAI[pi][i]), freshDI[\(i)] : \(freshDI[pi][i]), freshDI[\(i+1)] : \(freshDI[i+1])") 여기 라인 이상해 !!
-                                print("point 1")
                                 result = answer[pi][i]; print("result5 (answer[[\(i)]]: \(result ?? answer[pi][i])")
-                                print("point 2")
                             } else if freshDI[pi][i] == 2{
                                 //+ 연산 >> D[i+1] 존재하는 경우. >> D[i] 존재 ㄴㄴ
                                 for k in 1 ... i{
@@ -293,41 +275,23 @@ class ViewController: UIViewController {
                         }
                     }
                 } // end of all calculations.
-                        print("path9")
                 for i in niStartStorage[pi][a] ..< niEndStorage[pi][a]{
-                            print("path10")
                     if freshAI[pi][i] == 1{ // 답을 못찾는 경우도 구해야함. .. 괄호 안에 항이 하나이거나 전체 항이 하나. 연산 없이.
-                                print("path11")
                         clearAfterAns = true
                         result = answer[pi][i]
-                                print("path12")
                         break
                     }
-                            print("path13")
                     if i == niEndStorage[pi][a]-1 {
-                                print("path14")
                         result = DS[pi][0]
                     }
                 }
-                        print("path15")
                 if pi > 0{
-                            print("path16")
-                    print("a : \(a)")
-                     print("pi : \(pi)")
-                    print("DS : \(DS)")
-                   
                     DS[pi-1][positionOfParenthe[pi-1][a]] = result!
                     freshDI[pi-1][positionOfParenthe[pi-1][a]] = 1
-                            print("path17")
                 }
             } // end of for a in 1 ... niStartStorage[pi].count-1{
-                    print("path18")
             if pi == 0 {
-                        print("path19")
                 floatingNumberDecider(ans: result!)
-                print("DS : \(DS)")
-                print("answer : \(answer)")
-                        print("path20")
                 break
             }else {
                 pi -= 1
@@ -346,21 +310,8 @@ class ViewController: UIViewController {
         process = ""
         negativeSign = false
         clearAfterAns = false
-//        ni = [0]
-//        pi = 0
-//        DS = [[0.0]]
-//        tempDigits = [[""]]
-//        printProcess()
-//        answer = [[300]] // for error check.
-//        freshDI = [[0]]
-//        freshAI = [[0]]
-//        operationStorage = [[""]]
-//        muldiOperIndex = [[false]]
-//        result = 0
-//        parenthesisStorage = [[0]]
         indexPivotHelper = [false]
         positionOfParenthe = [[Int]]()
-        
         niStartStorage = [[0]]
         niEndStorage = [[0]]
         piMax = 0
@@ -380,10 +331,6 @@ class ViewController: UIViewController {
         muldiOperIndex = [[false]]
         result = nil
         parenthesisStorage = [[Int]]()
-        //        DSindexPivot = [0]
-        //        processView.text = "0"
-        //         process = ""
-        //        saveResult = nil // apply only when pressed clear Button
     }
     
     func indexUpdate(){
@@ -409,13 +356,12 @@ class ViewController: UIViewController {
                 escape = true
                 saveResult = ans
                 resultView.text = "\(String(format : "%.\(i)f", ans))"
-                print("ans : \(ans)")
+                break
             }
-        }
-        // if one decimal point excced 10, it prints till 6th decimal places
-        if escape == false{
-            resultView.text = "\(String(format : "%.6f", ans))"
-            saveResult = ans
+            if i == 6{
+                resultView.text = "\(String(format : "%.6f", ans))"
+                saveResult = ans
+            }
         }
     }
     
@@ -446,21 +392,22 @@ class ViewController: UIViewController {
                 printProcess()
                 ni.append(0)
                 //for index range .
+                tempDigits.append([""])
                 DS.append([0])
                 freshDI.append([0])
-                tempDigits.append([""])
                 operationStorage.append([""])
                 muldiOperIndex.append([false])
                 answer.append([150])
                 freshAI.append([0])
+                
                 indexPivotHelper.append(false)
                 niStartStorage.append([0])
                 positionOfParenthe.append([0])
                 positionOfParenthe[pi].append(ni[pi])
-                // for space for answer
                 DS[pi].append(0)
                 freshDI[pi].append(0)
                 tempDigits[pi][ni[pi]] = "paren"
+                
                 pi += 1
                 if pi > piMax{
                     piMax = pi
@@ -468,17 +415,19 @@ class ViewController: UIViewController {
                 if indexPivotHelper[pi]{
                     ni[pi] += 1
                 }
+                tempDigits[pi].append("")
                 DS[pi].append(0)
-                niStartStorage[pi].append(ni[pi])
                 freshDI[pi].append(0)
-                niEndStorage.append([0])
                 operationStorage.append([""])
                 muldiOperIndex.append([false])
-                operationStorage[pi].append("") // this
-                muldiOperIndex[pi].append(false) // this.
-                indexPivotHelper[pi] = true // this.
-                tempDigits[pi].append("")
+                operationStorage[pi].append("")
+                muldiOperIndex[pi].append(false)
                 
+                niStartStorage[pi].append(ni[pi])
+                niEndStorage.append([0])
+                
+                indexPivotHelper[pi] = true
+    
             }else if (pi != 0) && parenthe == ")"{
                 stateParenthesis(pointNumber : 1)
                 niEndStorage[pi].append(ni[pi]) // this
