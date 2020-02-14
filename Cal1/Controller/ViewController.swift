@@ -221,6 +221,7 @@ class ViewController: UIViewController {
         while pi > 0{
             niEnd[pi].append(ni[pi])
             pi -= 1
+            process += ")"
         }
         
         niStart[0].append(0)
