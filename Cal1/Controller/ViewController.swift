@@ -107,7 +107,17 @@ class ViewController: UIViewController {
                         process += String(digitInput)
                         negativeSign = false
                         printProcess()
-                    }else { // usual case
+                    }else if  tempDigits[pi][ni[pi]] == "parenclosed" && operationStorage[pi][ni[pi]] == ""{
+                        operationStorage[pi][ni[pi]] = "x"
+                        muldiOperIndex[pi][ni[pi]] = true
+                        process += operationStorage[pi][ni[pi]]
+                        answer[pi].append(200) // for error checking
+                        indexUpdate()
+                        tempDigits[pi][ni[pi]] = digitInput
+                        process += String(digitInput)
+                    }
+                    
+                    else { // usual case
                         print("}else { // usual case")
                         tempDigits[pi][ni[pi]] += digitInput
                         process += String(digitInput)
@@ -527,6 +537,7 @@ class ViewController: UIViewController {
                 pi -= 1
                 print("parenthe : \(parenthe)")
                 process += parenthe
+                tempDigits[pi][ni[pi]] += "closed"
             }
             printProcess()
         }
