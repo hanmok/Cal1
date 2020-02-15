@@ -2,30 +2,32 @@
 import UIKit
 
 class ViewController: UIViewController {
-    var saveResult : Double? // if one want operate after press ans button, this value will come up and used.
-    var result : Double? // to be printed, one of the answer array.
-    var answer : [[Double]] = [[100]] // the default value, which helps indicate the error.
-    var freshAI = [[0]] // 0 :newly made, 1 : calculated, 2 : used
-    var freshDI = [[0]] // 0 : newly made, 1: got UserInput, 2 : used
-    var DS = [[0.0]] // Double Numbers Storage
-    var operationStorage = [[""]]
-    var parenthesisStorage = [[Int]]()
     var pi = 0 // index for parenthesis.
     var ni = [0] // increase after pressing operation button.
+    
+    var tempDigits = [[""]] // save all digits to make a number
+    var freshDI = [[0]] // 0 : newly made, 1: got UserInput, 2 : used
+    var freshAI = [[0]] // 0 :newly made, 1 : calculated, 2 : used
+    var DS = [[0.0]] // Double Numbers Storage
+    var answer : [[Double]] = [[100]] // the default value, which helps indicate the error.
+    
+    var operationStorage = [[""]]
+    var muldiOperIndex = [[false]] // true if it is x or / .
+    
+    var parenthesisStorage = [[Int]]()
     var niStart = [[0]] // remember the indexes to calculate (within parenthesis)
     var niEnd = [[0]]
-    var muldiOperIndex = [[false]] // true if it is x or / .
     var indexPivotHelper = [false]
     var positionOfParenthe = [[Int]]() // remember the position of empty DS
-    var tempDigits = [[""]] // save all digits to make a number
     var clearAfterAns = false
     var negativeSign = false
     var process = ""
     var isParenClosed = false
     var piMax = 0
-    var plSign = false
-    var miSign = false
-    var sign = false
+    
+    var saveResult : Double? // if one want operate after press ans button, this value will come up and used.
+    var result : Double? // to be printed, one of the answer array.
+    
     
     @IBOutlet weak var leftParenthesis: UIButton!
     @IBOutlet weak var rightParenthesis: UIButton!
@@ -85,28 +87,45 @@ class ViewController: UIViewController {
                     //var tempDigits = [""]
                     // tempDigit[ni[pi]] : user number input just before digitInput
                     // tempDigits[pi][ni[pi]] == 00, 01, 02, ... 09
-                    //if user input 01 02 03 .. 09 , automatically change it to 1, 2, 3, ... 9 (exceptional)
-                    if digitInput != "." && tempDigits[pi][ni[pi]] == "0" {
-                        print(" if digitInput != \".\" && tempDigits[pi][ni[pi]] == \"0\" {")
-                        let str1 = tempDigits[pi][ni[pi]].dropLast()
-                        tempDigits[pi][ni[pi]] = String(str1)
-                        tempDigits[pi][ni[pi]] += digitInput
-                        
-                        let str2 = process.dropLast()
-                        process = String(str2)
-                        process += digitInput
-                        
+                    //if user input 00 01 02 03 .. 09 , automatically change it to 0, 1, 2, 3, ... 9 (exceptional)
+//                    if digitInput != "." && tempDigits[pi][ni[pi]] == "0" {
+//                        print(" if digitInput != \".\" && tempDigits[pi][ni[pi]] == \"0\" {")
+//                        let str1 = tempDigits[pi][ni[pi]].dropLast()
+//                        tempDigits[pi][ni[pi]] = String(str1)
+//                        tempDigits[pi][ni[pi]] += digitInput
+//
+//                        let str2 = process.dropLast()
+//                        process = String(str2)
+//                        process += digitInput
+                    if (tempDigits[pi][ni[pi]] == "" || tempDigits[pi][ni[pi]] == "-" || tempDigits[pi][ni[pi]] == "0" || tempDigits[pi][ni[pi]] == "00") && (digitInput == "00" || digitInput == "0"){
                         //when dot clicked without any number prior to, it automatically input 0 before dot. (. >> 0.0)(ex)
-                    }else if tempDigits[pi][ni[pi]] == "" && digitInput == "."{
+                        if digitInput == "0"{
+                            switch tempDigits[pi][ni[pi]] {
+                            case "" : tempDigits[pi][ni[pi]] = "0" ; process += "0"
+                            case "-" : tempDigits[pi][ni[pi]] += "0"; process += "0"
+                            case "0" : tempDigits[pi][ni[pi]] = "0"
+                            default:print("digitInput == 0 ") ; break
+                            }
+                        }else if digitInput == "00"{
+                            switch tempDigits[pi][ni[pi]] {
+                            case "" : tempDigits[pi][ni[pi]] = "0" ; process += "0"
+                            case "-" : tempDigits[pi][ni[pi]] += "0"; process += "0"
+                            case "0" : tempDigits[pi][ni[pi]] = "0"
+                            default:print("digitInput == 00 ");break
+                        }
+                    }
+                    }else if (tempDigits[pi][ni[pi]] == "" || tempDigits[pi][ni[pi]] == "-") && digitInput == "."{
                         print("  }else if tempDigits[pi][ni[pi]] == \"\" && digitInput == \".\"{")
-                        tempDigits[pi][ni[pi]] = "0."
+                        tempDigits[pi][ni[pi]] += "0."
                         process += String("0.")
+                        
                     }else if ((ni[pi]) == 0) && (negativeSign){
-                        tempDigits[pi][ni[pi]] += "-"
+//                        tempDigits[pi][ni[pi]] += "-"
                         tempDigits[pi][ni[pi]] += digitInput
                         process += String(digitInput)
                         negativeSign = false
                         printProcess()
+                        
                     }else if  tempDigits[pi][ni[pi]] == "parenclosed" && operationStorage[pi][ni[pi]] == ""{
                         operationStorage[pi][ni[pi]] = "x"
                         muldiOperIndex[pi][ni[pi]] = true
@@ -140,10 +159,12 @@ class ViewController: UIViewController {
                 }
             }
             //input tempDigits[pi][ni[pi]] to  DS, with changing freshDI with 1 which means it recived a user input.
+stateTempDigits(pointNumber : 3)
             printProcess()
             //            processView.text =  process
         } // end of DS[pi][ni[pi]] <= 1e18
         //stateTempDigits(pointNumber: 3)
+
     }
     
     
@@ -192,6 +213,7 @@ class ViewController: UIViewController {
 //                    sign = true
 //                }// if the other operation comes first before number >> ignore .
                 else if ni[pi] == 0 && operInput == "-" && !negativeSign{
+                    tempDigits[pi][ni[pi]] += "-"
                     negativeSign = true
                     process += "-"
                 }
@@ -343,9 +365,7 @@ class ViewController: UIViewController {
                                     }
                                 }
                             }
-                            
                         }
-                        
                     }
                 } // end of all calculations. (for i in niStart[pi][a] ..< niEnd[pi][a])
                 
@@ -357,13 +377,21 @@ class ViewController: UIViewController {
                         print("if freshAI[pi][i] == 1{")
                         clearAfterAns = true
                         result = answer[pi][i]
+                        print("result = answer[pi][i]")
+                        checkIndexes(pointNumber: 19.5)
                         break
                     }
+                    print("is it here?")
                     if i == niEnd[pi][a]-1 {
                         print("if i == niEnd[pi][a]-1 {")
                         result = DS[pi][0]
                     }
                 }
+                //special case.
+                if niStart[pi][a] == niEnd[pi][a]{ // only one number is in parenthesis
+                    result = DS[pi][0]
+                }
+                
                 checkIndexes(pointNumber: 19)
                 if pi > 0{
                     print("if pi > 0{")
@@ -371,6 +399,8 @@ class ViewController: UIViewController {
                     print("freshDI : \(freshDI)")
                     print("pi : \(pi), a : \(a)")
                     print("positionOfParenthe : \(positionOfParenthe)")
+                    print("result : \(String(describing: result))")
+                    checkIndexes(pointNumber: 20.1)
                     DS[pi-1][positionOfParenthe[pi-1][a]] = result!
                     freshDI[pi-1][positionOfParenthe[pi-1][a]] = 1
                     print("pass it ? ")
@@ -552,7 +582,10 @@ class ViewController: UIViewController {
     }
     
     func stateTempDigits(pointNumber : Double){
+
         print("point : \(pointNumber)")
+        print("ni : \(ni)")
+        print("pi : \(pi)")
         print("tempDigits : \(tempDigits)")
         print("DS : \(DS)")
         print("freshDI : \(freshDI)")
