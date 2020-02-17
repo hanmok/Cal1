@@ -57,7 +57,6 @@ class ViewController: UIViewController {
     //MARK: - <#func numberPressed
     @IBAction func numberPressed(_ sender: UIButton){
         if clearAfterAns{
-            print(" if clearAfterAns{")
             clear()
             processView.text = "0"
             process = ""
@@ -78,8 +77,7 @@ class ViewController: UIViewController {
                         process += "0"
                     case "0" : print("do nothing"); break
                     case "-0": print("do nothing2"); break
-                    default:
-                        break
+                    default : break
                     }
                     
                 }else if (digitInput == ".") && (tempDigits[pi][ni[pi]] == "" || tempDigits[pi][ni[pi]] == "-" || tempDigits[pi][ni[pi]].contains(".")){
@@ -90,8 +88,7 @@ class ViewController: UIViewController {
                     case "-" :
                         tempDigits[pi][ni[pi]] += "0."
                         process += "0."
-                    default:
-                        break
+                    default : break
                     }
                 }
                     
@@ -143,7 +140,7 @@ class ViewController: UIViewController {
                     clear()
                     DS[0][0] = saveResult!
                     saveResult = nil
-                    freshDI[0][0] = 1 //allocated 1 to freshDI cause it initialized with number not be changed.
+                    freshDI[0][0] = 1
                     if (DS[0][0] - Double(Int(DS[0][0])) == 0){ process = String(format : "%.0f", DS[0][0])}
                     else {process = String(DS[0][0])}
                     
@@ -210,31 +207,20 @@ class ViewController: UIViewController {
         
         niStart[0].append(0)
         niEnd[0].append(ni[0])
-        print("final check : niStart : \(niStart), niEnd : \(niEnd)")
-        checkIndexes(pointNumber: 1)
         pi = piMax
         big : while pi >= 0 {
-            checkIndexes(pointNumber: 2)
             for a in 1 ... niStart[pi].count-1{
-                checkIndexes(pointNumber: 3)
                 for i in niStart[pi][a] ..< niEnd[pi][a]{
-                    checkIndexes(pointNumber: 4)
                     // first for statement : for Operation == "x" or "/"
                     if muldiOperIndex[pi][i]{
                         if freshDI[pi][i] == 1 && freshDI[pi][i+1] == 1{
                             //곱셈 , D[i]전항과 D[i+1]후항 존재, >> 두개 곱함.
                             if operationStorage[pi][i] == "x" {
-                                checkIndexes(pointNumber: 7)
-                                print("a : \(a)")
-                                print("i : \(i)")
                                 answer[pi][i] = DS[pi][i] *  DS[pi][i+1]
-                                checkIndexes(pointNumber: 8)
                             }else if  operationStorage[pi][i] == "/"{
                                 answer[pi][i] = DS[pi][i] /  DS[pi][i+1]
                             }
-                            checkIndexes(pointNumber: 9)
                             freshAI[pi][i] = 1 ; freshDI[pi][i] = 2 ; freshDI[pi][i+1] = 2
-                            checkIndexes(pointNumber: 10)
                             result = answer[pi][i]
                         }else if  freshDI[pi][i] == 2 && freshDI[pi][i+1] == 1{
                             //곱셈, D[i]전항 존재 안할 때 >> A[i-1] * D[i+1]
@@ -248,9 +234,7 @@ class ViewController: UIViewController {
                         }
                     }
                 } // end for i inniStart[pi][a] ...niEnd[pi][a]{
-                checkIndexes(pointNumber: 11)
                 for i in niStart[pi][a] ..< niEnd[pi][a]{
-                    checkIndexes(pointNumber: 12)
                     if !muldiOperIndex[pi][i]{ //{b
                         if freshDI[pi][i+1] == 1{
                             //+ 연산 >> D[i+1] 존재
@@ -274,7 +258,7 @@ class ViewController: UIViewController {
                                             answer[pi][i] = answer[pi][i-k] -  DS[pi][i+1]
                                         }
                                         freshAI[pi][i] = 1;freshAI[pi][i-k] = 2 ; freshDI[pi][i+1] = 2
-                                        result = answer[pi][i]; print("result6 : (answer[[\(i)]]\(result ?? answer[pi][i])")
+                                        result = answer[pi][i]
                                     }
                                 }
                             }
@@ -302,7 +286,7 @@ class ViewController: UIViewController {
                                                     answer[pi][i] = answer[pi][i-j] - answer[pi][k+1]
                                                 }
                                                 freshAI[pi][i] = 1; freshAI[pi][i-j] = 2; freshAI[pi][k+1] = 2
-                                                result = answer[pi][i]; print("result8 (answer[[\(i)]]: \(result ?? answer[pi][i])")
+                                                result = answer[pi][i]
                                                 break noLatterNum
                                             }
                                         }
@@ -313,8 +297,6 @@ class ViewController: UIViewController {
                     }
                 } // end of all calculations. (for i in niStart[pi][a] ..< niEnd[pi][a])
                 
-                checkIndexes(pointNumber: 18)
-                // for a in 1 ...niStart[pi].count-1{
                 if pi>0{
                     for i in niStart[pi][a] ... niEnd[pi][a]{
                         if niStart[pi][a] != niEnd[pi][a]{
@@ -356,7 +338,6 @@ class ViewController: UIViewController {
         processView.text = "0"
         saveResult = nil
         process = ""
-        //        negativeSign = false
         clearAfterAns = false
     }
     
@@ -379,7 +360,6 @@ class ViewController: UIViewController {
         positionOfParenthe = [[Int]]()
         niStart = [[0]]
         niEnd = [[0]]
-        //        negativeSign = false
     }
     
     func indexUpdate(){
@@ -390,7 +370,6 @@ class ViewController: UIViewController {
         freshAI[pi].append(0)
         muldiOperIndex[pi].append(true)
         operationStorage[pi].append("")
-        //        negativeSign = false
     }
     
     func printProcess(){
@@ -415,7 +394,6 @@ class ViewController: UIViewController {
         }
     }
     
-    
     @IBAction func ansPressed(_ sender: UIButton) {
         calculateAns()
     }
@@ -426,7 +404,7 @@ class ViewController: UIViewController {
         case "X" :  operationStorage[pi][tempi] = "x"
         case "-" :  operationStorage[pi][tempi] = "-"
         case "/" :  operationStorage[pi][tempi] = "/"
-        default: print("operationStorage[\(tempi)] :\(operationStorage[pi][tempi]) ")
+        default: break
         }
         if  operationStorage[pi][tempi] == "x" ||  operationStorage[pi][tempi] == "/"{
             muldiOperIndex[pi][tempi] = true}
@@ -437,9 +415,6 @@ class ViewController: UIViewController {
     @IBAction func parenthesisPressed(_ sender: UIButton) {
         if let parenthe = sender.currentTitle{
             if parenthe == "("{
-                print("begin parenthesis open")
-                print("ni : \(ni), pi : \(pi)")
-                print("niStart : \(niStart), niEnd : \(niEnd)")
                 if operationStorage[pi][ni[pi]] == "" && tempDigits[pi][ni[pi]] != ""{
                     if tempDigits[pi][ni[pi]] == "0." || tempDigits[pi][ni[pi]] == "-0."{
                         tempDigits[pi][ni[pi]] += "0"
@@ -475,74 +450,15 @@ class ViewController: UIViewController {
                 indexIncreaseInParenthesisAfter(pi: pi)
                 niStart[pi].append(ni[pi])
                 indexPivotHelper[pi] = true
-                print("end parenthesis open")
-                print("ni : \(ni), pi : \(pi)")
-                print("niStart : \(niStart), niEnd : \(niEnd)")
-                
             }else if (pi != 0) && parenthe == ")"{
-                print("begin parenthesis close")
-                print("ni : \(ni), pi : \(pi)")
-                print("niStart : \(niStart), niEnd : \(niEnd)")
-                stateParenthesis(pointNumber : 1)
                 niEnd[pi].append(ni[pi]) // this
                 pi -= 1
-                print("parenthe : \(parenthe)")
                 process += parenthe
                 tempDigits[pi][ni[pi]] += "closed"
-                print("end parenthesis close")
-                print("ni : \(ni), pi : \(pi)")
-                print("niStart : \(niStart), niEnd : \(niEnd)")
             }
             printProcess()
         }
     }
-    
-    func stateCheck(pointNumber : Double){
-        print(" \(pointNumber)")
-        print("ni : \(ni)")
-        print("DS : \(DS)")
-        print("operationStorage : \(operationStorage)")
-        print("ans : \(answer)")
-    }
-    
-    func stateTempDigits(pointNumber : Double){
-        
-        print(" \(pointNumber)")
-        print("ni : \(ni)")
-        print("pi : \(pi)")
-        print("tempDigits : \(tempDigits)")
-        print("DS : \(DS)")
-        print("freshDI : \(freshDI)")
-    }
-    
-    func stateParenthesis(pointNumber : Double){
-        print(" \(pointNumber)")
-        print("niEndStorage : \(niEnd)")
-        print("operationStorage : \(operationStorage)")
-        print("muldiOperIndex : \(muldiOperIndex)")
-        print("indexPivotHelper : \(indexPivotHelper)")
-        print("tempDigits : \(tempDigits)")
-    }
-    
-    func checkIndexes(pointNumber : Double){
-        print(" \(pointNumber)")
-        print("answer : \(answer)")
-        print("freshDI : \(freshDI)")
-        print("freshAI : \(freshAI)")
-        print("DS : \(DS)")
-        print("operationStorage : \(operationStorage)")
-        print("muldiOperIndex : \(muldiOperIndex)")
-        print("ni : \(ni)")
-        print("pi : \(pi)")
-        print("niStartStorage : \(niStart)")
-        print("niEndStorage : \(niEnd)")
-        print("indexPivotHelper : \(indexPivotHelper)")
-        print("positionOfParenthe : \(positionOfParenthe)")
-        print("tempDigits : \(tempDigits)")
-        print("process : \(process)")
-        print("pointNumber : \(pointNumber) end")
-    }
-    
     func indexIncreaseInParenthesisBefore(pi : Int){
         ni.append(0)
         tempDigits.append([""])
@@ -552,7 +468,6 @@ class ViewController: UIViewController {
         muldiOperIndex.append([false])
         answer.append([150])
         freshAI.append([0])
-        
         DS[pi].append(0)
         freshDI[pi].append(0)
     }
@@ -566,4 +481,22 @@ class ViewController: UIViewController {
         operationStorage[pi].append("")
         muldiOperIndex[pi].append(false)
     }
+    //    func checkIndexes(pointNumber : Double){
+    //        print(" \(pointNumber)")
+    //        print("answer : \(answer)")
+    //        print("freshDI : \(freshDI)")
+    //        print("freshAI : \(freshAI)")
+    //        print("DS : \(DS)")
+    //        print("operationStorage : \(operationStorage)")
+    //        print("muldiOperIndex : \(muldiOperIndex)")
+    //        print("ni : \(ni)")
+    //        print("pi : \(pi)")
+    //        print("niStartStorage : \(niStart)")
+    //        print("niEndStorage : \(niEnd)")
+    //        print("indexPivotHelper : \(indexPivotHelper)")
+    //        print("positionOfParenthe : \(positionOfParenthe)")
+    //        print("tempDigits : \(tempDigits)")
+    //        print("process : \(process)")
+    //        print("pointNumber : \(pointNumber) end")
+    //    }
 }
