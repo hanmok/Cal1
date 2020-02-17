@@ -20,7 +20,6 @@ class ViewController: UIViewController {
     var indexPivotHelper = [false]
     var positionOfParenthe = [[Int]]() // remember the position of empty DS
     var clearAfterAns = false
-//    var negativeSign = false
     var process = ""
     var isParenClosed = false
     var piMax = 0
@@ -176,6 +175,7 @@ class ViewController: UIViewController {
                     operinputSetup(tempOperInput: operInput, tempi: ni[pi])
                     process += operationStorage[pi][ni[pi]]
                     answer[pi].append(200)
+                    freshAI[pi].append(0)
                     indexUpdate()
                 }
             }
@@ -189,6 +189,8 @@ class ViewController: UIViewController {
                 else if tempDigits[pi][ni[pi]] != ""{
                     operinputSetup(tempOperInput: operInput, tempi: ni[pi])
                     process += operationStorage[pi][ni[pi]]
+                    answer[pi].append(150)
+                    freshAI[pi].append(0)
                     indexUpdate()
                 }
             }
@@ -208,9 +210,10 @@ class ViewController: UIViewController {
         
         niStart[0].append(0)
         niEnd[0].append(ni[0])
+        print("final check : niStart : \(niStart), niEnd : \(niEnd)")
         checkIndexes(pointNumber: 1)
         pi = piMax
-        while pi >= 0 {
+        big : while pi >= 0 {
             checkIndexes(pointNumber: 2)
             for a in 1 ... niStart[pi].count-1{
                 checkIndexes(pointNumber: 3)
@@ -222,14 +225,16 @@ class ViewController: UIViewController {
                             //곱셈 , D[i]전항과 D[i+1]후항 존재, >> 두개 곱함.
                             if operationStorage[pi][i] == "x" {
                                 checkIndexes(pointNumber: 7)
+                                print("a : \(a)")
+                                print("i : \(i)")
                                 answer[pi][i] = DS[pi][i] *  DS[pi][i+1]
-                                 checkIndexes(pointNumber: 8)
+                                checkIndexes(pointNumber: 8)
                             }else if  operationStorage[pi][i] == "/"{
                                 answer[pi][i] = DS[pi][i] /  DS[pi][i+1]
                             }
-                             checkIndexes(pointNumber: 9)
+                            checkIndexes(pointNumber: 9)
                             freshAI[pi][i] = 1 ; freshDI[pi][i] = 2 ; freshDI[pi][i+1] = 2
-                             checkIndexes(pointNumber: 10)
+                            checkIndexes(pointNumber: 10)
                             result = answer[pi][i]
                         }else if  freshDI[pi][i] == 2 && freshDI[pi][i+1] == 1{
                             //곱셈, D[i]전항 존재 안할 때 >> A[i-1] * D[i+1]
@@ -310,39 +315,38 @@ class ViewController: UIViewController {
                 
                 checkIndexes(pointNumber: 18)
                 // for a in 1 ...niStart[pi].count-1{
-                for i in niStart[pi][a] ..< niEnd[pi][a]{
-                    if freshAI[pi][i] == 1{ // 답을 못찾는 경우도 구해야함. .. 괄호 안에 항이 하나이거나 전체 항이 하나. 연산 없이.
-                        clearAfterAns = true
-                        result = answer[pi][i]
-                        checkIndexes(pointNumber: 19)
-                        break
+                if pi>0{
+                    for i in niStart[pi][a] ... niEnd[pi][a]{
+                        if niStart[pi][a] != niEnd[pi][a]{
+                            if freshAI[pi][i] == 1{
+                                DS[pi-1][positionOfParenthe[pi-1][a]] = answer[pi][i]
+                                freshDI[pi-1][positionOfParenthe[pi-1][a]] = 1
+                            }
+                        }else if niStart[pi][a] == niEnd[pi][a]{
+                            DS[pi-1][positionOfParenthe[pi-1][a]] = DS[pi][i]
+                            freshDI[pi-1][positionOfParenthe[pi-1][a]] = 1
+                        }
                     }
-                    if i == niEnd[pi][a]-1 {
-                        result = DS[pi][0]
+                }
+                else if pi == 0{
+                    near : for i in niStart[0][1] ... niEnd[0][1]{
+                        if freshAI[0][i] == 1{
+                            result = answer[0][i]
+                            break near
+                        }
+                        if i == niEnd[0][1]{
+                            result = DS[0][i]
+                        }
                     }
+                    floatingNumberDecider(ans: result!)
+                    clear()
+                    clearAfterAns = true
+                    break big
                 }
-                //special case.
-                if niStart[pi][a] == niEnd[pi][a]{ // only one number is in parenthesis
-                    result = DS[pi][0]
-                }
-                
-                if pi > 0{
-                    DS[pi-1][positionOfParenthe[pi-1][a]] = result!
-                    freshDI[pi-1][positionOfParenthe[pi-1][a]] = 1
-                }
-            } // end of for a in 1 ...niStart[pi].count-1{
-            if pi == 0 {
-                floatingNumberDecider(ans: result!)
-                checkIndexes(pointNumber: 20)
-                break
-            }else {
-                pi -= 1
-                continue
-            }
-        } // end pi >= 0
-        clear()
-        clearAfterAns = true
-    } // end of function calculateAns
+            } // end for a in 1 ... niStart[pi].count-1{
+            pi -= 1
+        } //end big : while pi >= 0 {
+    } // end func calculateAns()
     
     
     //MARK: - <#func clearPressed
@@ -352,7 +356,7 @@ class ViewController: UIViewController {
         processView.text = "0"
         saveResult = nil
         process = ""
-//        negativeSign = false
+        //        negativeSign = false
         clearAfterAns = false
     }
     
@@ -375,7 +379,7 @@ class ViewController: UIViewController {
         positionOfParenthe = [[Int]]()
         niStart = [[0]]
         niEnd = [[0]]
-//        negativeSign = false
+        //        negativeSign = false
     }
     
     func indexUpdate(){
@@ -386,7 +390,7 @@ class ViewController: UIViewController {
         freshAI[pi].append(0)
         muldiOperIndex[pi].append(true)
         operationStorage[pi].append("")
-//        negativeSign = false
+        //        negativeSign = false
     }
     
     func printProcess(){
@@ -433,7 +437,14 @@ class ViewController: UIViewController {
     @IBAction func parenthesisPressed(_ sender: UIButton) {
         if let parenthe = sender.currentTitle{
             if parenthe == "("{
+                print("begin parenthesis open")
+                print("ni : \(ni), pi : \(pi)")
+                print("niStart : \(niStart), niEnd : \(niEnd)")
                 if operationStorage[pi][ni[pi]] == "" && tempDigits[pi][ni[pi]] != ""{
+                    if tempDigits[pi][ni[pi]] == "0." || tempDigits[pi][ni[pi]] == "-0."{
+                        tempDigits[pi][ni[pi]] += "0"
+                        process += "0"
+                    }
                     operationStorage[pi][ni[pi]] = "x"
                     muldiOperIndex[pi][ni[pi]] = true
                     
@@ -441,12 +452,12 @@ class ViewController: UIViewController {
                     answer[pi].append(200) // for error checking
                     indexUpdate()
                 }
-        
+                
                 process += parenthe
                 printProcess()
                 
                 indexIncreaseInParenthesisBefore(pi : pi)
-                niStart.append([0])
+                indexPivotHelper.append(false)
                 positionOfParenthe.append([0])
                 positionOfParenthe[pi].append(ni[pi])
                 tempDigits[pi][ni[pi]] = "paren"
@@ -454,6 +465,8 @@ class ViewController: UIViewController {
                 pi += 1
                 if pi > piMax{
                     piMax = pi
+                    niStart.append([0])
+                    niEnd.append([0])
                 }
                 if indexPivotHelper[pi]{
                     ni[pi] += 1
@@ -461,16 +474,24 @@ class ViewController: UIViewController {
                 
                 indexIncreaseInParenthesisAfter(pi: pi)
                 niStart[pi].append(ni[pi])
-                niEnd.append([0])
                 indexPivotHelper[pi] = true
+                print("end parenthesis open")
+                print("ni : \(ni), pi : \(pi)")
+                print("niStart : \(niStart), niEnd : \(niEnd)")
                 
             }else if (pi != 0) && parenthe == ")"{
+                print("begin parenthesis close")
+                print("ni : \(ni), pi : \(pi)")
+                print("niStart : \(niStart), niEnd : \(niEnd)")
                 stateParenthesis(pointNumber : 1)
                 niEnd[pi].append(ni[pi]) // this
                 pi -= 1
                 print("parenthe : \(parenthe)")
                 process += parenthe
                 tempDigits[pi][ni[pi]] += "closed"
+                print("end parenthesis close")
+                print("ni : \(ni), pi : \(pi)")
+                print("niStart : \(niStart), niEnd : \(niEnd)")
             }
             printProcess()
         }
@@ -518,6 +539,7 @@ class ViewController: UIViewController {
         print("indexPivotHelper : \(indexPivotHelper)")
         print("positionOfParenthe : \(positionOfParenthe)")
         print("tempDigits : \(tempDigits)")
+        print("process : \(process)")
         print("pointNumber : \(pointNumber) end")
     }
     
@@ -530,7 +552,7 @@ class ViewController: UIViewController {
         muldiOperIndex.append([false])
         answer.append([150])
         freshAI.append([0])
-        indexPivotHelper.append(false)
+        
         DS[pi].append(0)
         freshDI[pi].append(0)
     }
