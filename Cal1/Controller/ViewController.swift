@@ -20,7 +20,7 @@ class ViewController: UIViewController {
     var indexPivotHelper = [false]
     var positionOfParenthe = [[Int]]() // remember the position of empty DS
     var clearAfterAns = false
-    var negativeSign = false
+//    var negativeSign = false
     var process = ""
     var isParenClosed = false
     var piMax = 0
@@ -71,14 +71,14 @@ class ViewController: UIViewController {
                 
                 if (digitInput == "0" || digitInput == "00") && (tempDigits[pi][ni[pi]] == "0" || tempDigits[pi][ni[pi]] == "-0" || tempDigits[pi][ni[pi]] == "" || tempDigits[pi][ni[pi]] == "-"){
                     switch tempDigits[pi][ni[pi]] {
-                    case "0" : print("do nothing")
-                    case "-0": print("do nothing2")
                     case ""  :
                         tempDigits[pi][ni[pi]] += "0"
                         process += "0"
                     case "-":
                         tempDigits[pi][ni[pi]] += "0"
                         process += "0"
+                    case "0" : print("do nothing"); break
+                    case "-0": print("do nothing2"); break
                     default:
                         break
                     }
@@ -120,7 +120,6 @@ class ViewController: UIViewController {
                     tempDigits[pi][ni[pi]] += digitInput
                     process += String(digitInput)
                 }
-                
                 
                 if tempDigits[pi][ni[pi]] != "-" || tempDigits[pi][ni[pi]] != ""{
                     if let safeDigits = Double(tempDigits[pi][ni[pi]]){
@@ -224,10 +223,13 @@ class ViewController: UIViewController {
                             if operationStorage[pi][i] == "x" {
                                 checkIndexes(pointNumber: 7)
                                 answer[pi][i] = DS[pi][i] *  DS[pi][i+1]
+                                 checkIndexes(pointNumber: 8)
                             }else if  operationStorage[pi][i] == "/"{
                                 answer[pi][i] = DS[pi][i] /  DS[pi][i+1]
                             }
+                             checkIndexes(pointNumber: 9)
                             freshAI[pi][i] = 1 ; freshDI[pi][i] = 2 ; freshDI[pi][i+1] = 2
+                             checkIndexes(pointNumber: 10)
                             result = answer[pi][i]
                         }else if  freshDI[pi][i] == 2 && freshDI[pi][i+1] == 1{
                             //곱셈, D[i]전항 존재 안할 때 >> A[i-1] * D[i+1]
@@ -312,6 +314,7 @@ class ViewController: UIViewController {
                     if freshAI[pi][i] == 1{ // 답을 못찾는 경우도 구해야함. .. 괄호 안에 항이 하나이거나 전체 항이 하나. 연산 없이.
                         clearAfterAns = true
                         result = answer[pi][i]
+                        checkIndexes(pointNumber: 19)
                         break
                     }
                     if i == niEnd[pi][a]-1 {
@@ -330,6 +333,7 @@ class ViewController: UIViewController {
             } // end of for a in 1 ...niStart[pi].count-1{
             if pi == 0 {
                 floatingNumberDecider(ans: result!)
+                checkIndexes(pointNumber: 20)
                 break
             }else {
                 pi -= 1
@@ -348,7 +352,7 @@ class ViewController: UIViewController {
         processView.text = "0"
         saveResult = nil
         process = ""
-        negativeSign = false
+//        negativeSign = false
         clearAfterAns = false
     }
     
@@ -371,7 +375,7 @@ class ViewController: UIViewController {
         positionOfParenthe = [[Int]]()
         niStart = [[0]]
         niEnd = [[0]]
-        negativeSign = false
+//        negativeSign = false
     }
     
     func indexUpdate(){
@@ -382,7 +386,7 @@ class ViewController: UIViewController {
         freshAI[pi].append(0)
         muldiOperIndex[pi].append(true)
         operationStorage[pi].append("")
-        negativeSign = false
+//        negativeSign = false
     }
     
     func printProcess(){
@@ -437,29 +441,16 @@ class ViewController: UIViewController {
                     answer[pi].append(200) // for error checking
                     indexUpdate()
                 }
-                
+        
                 process += parenthe
                 printProcess()
-                ni.append(0)
-                //for index range .
-                tempDigits.append([""])
-                DS.append([0])
-                freshDI.append([0])
-                operationStorage.append([""])
-                muldiOperIndex.append([false])
-                answer.append([150])
-                freshAI.append([0])
                 
-                indexPivotHelper.append(false)
+                indexIncreaseInParenthesisBefore(pi : pi)
                 niStart.append([0])
                 positionOfParenthe.append([0])
                 positionOfParenthe[pi].append(ni[pi])
-                DS[pi].append(0)
-                freshDI[pi].append(0)
                 tempDigits[pi][ni[pi]] = "paren"
                 
-                print("indexPivotHelper : \(indexPivotHelper)")
-                print("ni : \(ni)")
                 pi += 1
                 if pi > piMax{
                     piMax = pi
@@ -467,20 +458,11 @@ class ViewController: UIViewController {
                 if indexPivotHelper[pi]{
                     ni[pi] += 1
                 }
-                tempDigits[pi].append("")
-                DS[pi].append(0)
-                freshDI[pi].append(0)
-                operationStorage.append([""])
-                muldiOperIndex.append([false])
-                operationStorage[pi].append("")
-                muldiOperIndex[pi].append(false)
                 
+                indexIncreaseInParenthesisAfter(pi: pi)
                 niStart[pi].append(ni[pi])
                 niEnd.append([0])
-                
                 indexPivotHelper[pi] = true
-                print("indexPivotHelper : \(indexPivotHelper)")
-                print("ni : \(ni)")
                 
             }else if (pi != 0) && parenthe == ")"{
                 stateParenthesis(pointNumber : 1)
@@ -495,7 +477,7 @@ class ViewController: UIViewController {
     }
     
     func stateCheck(pointNumber : Double){
-        print("point : \(pointNumber)")
+        print(" \(pointNumber)")
         print("ni : \(ni)")
         print("DS : \(DS)")
         print("operationStorage : \(operationStorage)")
@@ -504,7 +486,7 @@ class ViewController: UIViewController {
     
     func stateTempDigits(pointNumber : Double){
         
-        print("point : \(pointNumber)")
+        print(" \(pointNumber)")
         print("ni : \(ni)")
         print("pi : \(pi)")
         print("tempDigits : \(tempDigits)")
@@ -513,7 +495,7 @@ class ViewController: UIViewController {
     }
     
     func stateParenthesis(pointNumber : Double){
-        print("stateParenthesisPointNumber : \(pointNumber)")
+        print(" \(pointNumber)")
         print("niEndStorage : \(niEnd)")
         print("operationStorage : \(operationStorage)")
         print("muldiOperIndex : \(muldiOperIndex)")
@@ -522,7 +504,7 @@ class ViewController: UIViewController {
     }
     
     func checkIndexes(pointNumber : Double){
-        print("pointNumber : \(pointNumber)")
+        print(" \(pointNumber)")
         print("answer : \(answer)")
         print("freshDI : \(freshDI)")
         print("freshAI : \(freshAI)")
@@ -537,5 +519,29 @@ class ViewController: UIViewController {
         print("positionOfParenthe : \(positionOfParenthe)")
         print("tempDigits : \(tempDigits)")
         print("pointNumber : \(pointNumber) end")
+    }
+    
+    func indexIncreaseInParenthesisBefore(pi : Int){
+        ni.append(0)
+        tempDigits.append([""])
+        DS.append([0])
+        freshDI.append([0])
+        operationStorage.append([""])
+        muldiOperIndex.append([false])
+        answer.append([150])
+        freshAI.append([0])
+        indexPivotHelper.append(false)
+        DS[pi].append(0)
+        freshDI[pi].append(0)
+    }
+    
+    func indexIncreaseInParenthesisAfter(pi : Int){
+        tempDigits[pi].append("")
+        DS[pi].append(0)
+        freshDI[pi].append(0)
+        operationStorage.append([""])
+        muldiOperIndex.append([false])
+        operationStorage[pi].append("")
+        muldiOperIndex[pi].append(false)
     }
 }
