@@ -321,7 +321,7 @@ class ViewController: UIViewController {
                             break near
                         }
                         if i == niEnd[0][1]{
-                            result = DS[0][i]
+                            result = DS[0][niStart[0][1]]
                             recordAnswers.append(answer[0][i])
                             recordProcess.append(process)
                         }
@@ -449,6 +449,7 @@ class ViewController: UIViewController {
                 printProcess()
                 
                 indexIncreaseInParenthesisBefore(pi : pi)
+                
                 indexPivotHelper.append(false)
                 positionOfParenthe.append([0])
                 positionOfParenthe[pi].append(ni[pi])
@@ -467,8 +468,9 @@ class ViewController: UIViewController {
                 indexIncreaseInParenthesisAfter(pi: pi)
                 niStart[pi].append(ni[pi])
                 indexPivotHelper[pi] = true
+                
             }else if (pi != 0) && parenthe == ")"{
-                niEnd[pi].append(ni[pi]) // this
+                niEnd[pi].append(ni[pi])
                 pi -= 1
                 process += parenthe
                 tempDigits[pi][ni[pi]] += "closed"
@@ -498,22 +500,23 @@ class ViewController: UIViewController {
         operationStorage[pi].append("")
         muldiOperIndex[pi].append(false)
     }
-    //    func checkIndexes(pointNumber : Double){
-    //        print(" \(pointNumber)")
-    //        print("answer : \(answer)")
-    //        print("freshDI : \(freshDI)")
-    //        print("freshAI : \(freshAI)")
-    //        print("DS : \(DS)")
-    //        print("operationStorage : \(operationStorage)")
-    //        print("muldiOperIndex : \(muldiOperIndex)")
-    //        print("ni : \(ni)")
-    //        print("pi : \(pi)")
-    //        print("niStartStorage : \(niStart)")
-    //        print("niEndStorage : \(niEnd)")
-    //        print("indexPivotHelper : \(indexPivotHelper)")
-    //        print("positionOfParenthe : \(positionOfParenthe)")
-    //        print("tempDigits : \(tempDigits)")
-    //        print("process : \(process)")
-    //        print("pointNumber : \(pointNumber) end")
-    //    }
 }
+
+//    func checkIndexes(pointNumber : Double){
+//        print(" \(pointNumber)")
+//        print("answer : \(answer)")
+//        print("freshDI : \(freshDI)")
+//        print("freshAI : \(freshAI)")
+//        print("DS : \(DS)")
+//        print("operationStorage : \(operationStorage)")
+//        print("muldiOperIndex : \(muldiOperIndex)")
+//        print("ni : \(ni)")
+//        print("pi : \(pi)")
+//        print("niStartStorage : \(niStart)")
+//        print("niEndStorage : \(niEnd)")
+//        print("indexPivotHelper : \(indexPivotHelper)")
+//        print("positionOfParenthe : \(positionOfParenthe)")
+//        print("tempDigits : \(tempDigits)")
+//        print("process : \(process)")
+//        print("pointNumber : \(pointNumber) end")
+//    }
