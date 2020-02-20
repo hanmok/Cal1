@@ -14,7 +14,7 @@ class ViewController: UIViewController {
     var operationStorage = [[""]]
     var muldiOperIndex = [[false]] // true if it is x or / .
     
-    var parenthesisStorage = [[Int]]()
+   
     var niStart = [[0]] // remember the indexes to calculate (within parenthesis)
     var niEnd = [[0]]
     var indexPivotHelper = [false]
@@ -23,6 +23,8 @@ class ViewController: UIViewController {
     var process = ""
     var isParenClosed = false
     var piMax = 0
+    var recordProcess = [String]()
+    var recordAnswers = [Double]()
     
     var saveResult : Double? // if one want operate after press ans button, this value will come up and used.
     var result : Double? // to be printed, one of the answer array.
@@ -314,10 +316,14 @@ class ViewController: UIViewController {
                     near : for i in niStart[0][1] ... niEnd[0][1]{
                         if freshAI[0][i] == 1{
                             result = answer[0][i]
+                            recordAnswers.append(answer[0][i])
+                            recordProcess.append(process)
                             break near
                         }
                         if i == niEnd[0][1]{
                             result = DS[0][i]
+                            recordAnswers.append(answer[0][i])
+                            recordProcess.append(process)
                         }
                     }
                     floatingNumberDecider(ans: result!)
@@ -329,6 +335,18 @@ class ViewController: UIViewController {
             pi -= 1
         } //end big : while pi >= 0 {
     } // end func calculateAns()
+    
+    
+    @IBAction func deletePressed(_ sender: UIButton) {
+        if let safeDelete = sender.currentTitle{
+            print(safeDelete)
+            print(process)
+//            let str = process.dropLast()
+//            process = String(str)
+//            print(process[process.endIndex])
+            print(process[process.index(before:process.endIndex)])
+        }
+    }
     
     
     //MARK: - <#func clearPressed
@@ -356,7 +374,6 @@ class ViewController: UIViewController {
         operationStorage = [[""]]
         muldiOperIndex = [[false]]
         result = nil
-        parenthesisStorage = [[Int]]()
         positionOfParenthe = [[Int]]()
         niStart = [[0]]
         niEnd = [[0]]
