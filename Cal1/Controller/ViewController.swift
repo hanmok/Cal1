@@ -3,7 +3,7 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    var tester = "abcde"
+    
     let numbers : [Character] = ["0","1","2","3","4","5","6","7","8","9","."]
     let operators : [Character] = ["+","-","x","/"]
     let parenthesis : [Character] = ["(",")"]
@@ -12,7 +12,7 @@ class ViewController: UIViewController {
     var pi = 0 // index for parenthesis.
     var copypi = 0
     var ni = [0] // increase after pressing operation button.
-    
+    var parentheNumber = [0] // indicate the number of Parenthesis overlapped. 
     var tempDigits = [[""]] // save all digits to make a number
     var freshDI = [[0]] // 0 : newly made, 1: got UserInput, 2 : used
     var freshAI = [[0]] // 0 :newly made, 1 : calculated, 2 : used
@@ -22,13 +22,18 @@ class ViewController: UIViewController {
     var copyDS = [[0.0]]
     var answer : [[Double]] = [[100]] // the default value, which helps indicate the error.
     var copyAnswer : [[Double]] = [[100]]
+    var whichParentheAreWe = [true]
+    var copyni = [0]
     
     var operationStorage = [[""]]
     var muldiOperIndex = [[false]] // true if it is x or / .
     
     var niStart = [[0]] // remember the indexes to calculate (within parenthesis)
     var niEnd = [[0]]
+    var copyniStart = [[0]]
+    var copyniEnd = [[0]]
     var indexPivotHelper = [false]
+    var indexPivotHelperIndicator = [0]
     var positionOfParenthe = [[Int]]() // remember the position of empty DS
     
     var process = ""
@@ -68,8 +73,6 @@ class ViewController: UIViewController {
     
     //MARK: - <#func numberPressed
     @IBAction func numberPressed(_ sender: UIButton){
-        tester = removeLastChar(sentence: tester)
-        print(tester)
         if isAnsPressed && !isDeletePressed{
             clear()
             processView.text = "0"
@@ -208,10 +211,9 @@ class ViewController: UIViewController {
         isDeletePressed = false
     }
     
-    
-    
     //MARK: - <#func calculation
     func calculateAns(){//{d
+        checkIndexes(saySomething: "calculateAnsPressed!!")
         isAnsPressed = true // because of break keyword are in the code, locateded it at the beginning.
         isDeletePressed = false
         copyfreshDI = freshDI
@@ -219,17 +221,29 @@ class ViewController: UIViewController {
         copyDS = DS
         copypi = pi
         copyAnswer = answer
-        
+        copyniStart = niStart
+        copyniEnd = niEnd
+        copyni = ni
         while pi > 0{
-            niEnd[pi].append(ni[pi])
+            print("looking for error 1")
+//            niEnd[pi].append(ni[pi])
+            niEnd[pi].append(0)
+            print("looking for error 2")
+            
+            niEnd[pi][parentheNumber[pi]] = ni[pi]// wrong index niEnd[pi][ ??? ] = ni[pi]
+            print("looking for error 3")
+            //
             pi -= 1
             process += ")"
         }
         
         niStart[0].append(0)
-        niEnd[0].append(ni[0])
+        niEnd[0].append(0)
+        niEnd[0][1] = ni[pi]
         pi = piMax
-        checkIndexes(pointNumber: 5)
+        
+        checkIndexes(saySomething: "calculate piLoop Start")
+//        checkIndexes(saySomething: <#T##String#>)
         piLoop : while pi >= 0 {
             for a in 1 ... niStart[pi].count-1{
                 for i in niStart[pi][a] ..< niEnd[pi][a]{
@@ -256,6 +270,7 @@ class ViewController: UIViewController {
                         }
                     }
                 } // end for i inniStart[pi][a] ...niEnd[pi][a]{
+                checkIndexes(saySomething: "multiply end")
                 for i in niStart[pi][a] ..< niEnd[pi][a]{
                     if !muldiOperIndex[pi][i]{ //{b
                         if freshDI[pi][i+1] == 1{
@@ -318,7 +333,7 @@ class ViewController: UIViewController {
                         }
                     }
                 } // end of all calculations. (for i in niStart[pi][a] ..< niEnd[pi][a])
-                
+                checkIndexes(saySomething: "start obtain answer ")
                 if pi>0{
                     for i in niStart[pi][a] ... niEnd[pi][a]{
                         if niStart[pi][a] != niEnd[pi][a]{
@@ -346,8 +361,10 @@ class ViewController: UIViewController {
                             recordProcess.append(process)
                         }
                     }
+                    printProcess()
                     floatingNumberDecider(ans: result!)
                     filterProcess()
+                    checkIndexes(saySomething: "end of piLoop")
                     break piLoop
                 }
             } // end for a in 1 ... niStart[pi].count-1{
@@ -355,17 +372,107 @@ class ViewController: UIViewController {
         } //end piLoop : while pi >= 0 {
     } // end func calculateAns()
     
+    @IBAction func parenthesisPressed(_ sender: UIButton) {
+            if let parenthe = sender.currentTitle{
+                if parenthe == "("{
+                    if operationStorage[pi][ni[pi]] == "" && tempDigits[pi][ni[pi]] != ""{
+                        if tempDigits[pi][ni[pi]] == "0." || tempDigits[pi][ni[pi]] == "-0."{
+                            tempDigits[pi][ni[pi]] += "0"
+                            process += "0"
+                        }
+                        operationStorage[pi][ni[pi]] = "x"
+                        muldiOperIndex[pi][ni[pi]] = true
+                        
+                        process += operationStorage[pi][ni[pi]]
+                        answer[pi].append(200) // for error checking
+                        indexUpdate()
+                    }
+                    
+                    process += parenthe
+                    printProcess()
+                    
+                    indexIncreaseInParenthesisBefore(pi : pi)
+                    
+                    indexPivotHelper.append(false)
+                    positionOfParenthe.append([0])
+                    positionOfParenthe[pi].append(ni[pi])
+                    tempDigits[pi][ni[pi]] = "paren"
+                    
+                    pi += 1
+                    indexPivotHelperIndicator[pi] += 1
+                    parentheNumber.append(0)
+                    parentheNumber[pi] += 1
+                    whichParentheAreWe[pi] = true
+                    
+                    if pi > piMax{
+                        piMax = pi
+                        niStart.append([0])
+                        niEnd.append([0])
+                    }
+                    if indexPivotHelper[pi]{
+                        ni[pi] += 1
+                        
+                    }
+                    
+                    indexIncreaseInParenthesisAfter(pi: pi)
+                    niStart[pi].append(ni[pi])
+                    indexPivotHelper[pi] = true
+                    
+                }else if (pi != 0) && parenthe == ")"{
+                    whichParentheAreWe[pi] = false
+    //                niEnd[pi].append(ni[pi])
+                    niEnd[pi].append(0)
+                    niEnd[pi][parentheNumber[pi]] = ni[pi] // wrong index niEnd[pi][ ??? ] = ni[pi]
+
+                    pi -= 1
+                    process += parenthe
+                    tempDigits[pi][ni[pi]] += "closed"
+                }
+                printProcess()
+            }
+        }
+    
+    func indexIncreaseInParenthesisBefore(pi : Int){
+        whichParentheAreWe.append(false)
+        indexPivotHelperIndicator.append(0)
+        ni.append(0)
+        tempDigits.append([""])
+        DS.append([0])
+        freshDI.append([0])
+        operationStorage.append([""])
+        muldiOperIndex.append([false])
+        answer.append([150])
+        freshAI.append([0])
+        DS[pi].append(0)
+        freshDI[pi].append(0)
+    }
+    
+    func indexIncreaseInParenthesisAfter(pi : Int){
+        tempDigits[pi].append("")
+        DS[pi].append(0)
+        freshDI[pi].append(0)
+        operationStorage.append([""])
+        muldiOperIndex.append([false])
+        operationStorage[pi].append("")
+        muldiOperIndex[pi].append(false)
+    }
     
     @IBAction func deletePressed(_ sender: UIButton) {
+        checkIndexes(saySomething: "deleted Pressed!")
         caseframe : if process != ""{
+            print("isDeletedPressed :\(isDeletePressed), isAnsPressed : \(isAnsPressed) ")
             if !isDeletePressed && isAnsPressed{
                 freshDI = copyfreshDI
                 freshAI = copyfreshAI
                 DS = copyDS
                 pi = copypi
                 answer = copyAnswer
+                niEnd = copyniEnd
+                niStart = copyniStart
                 niStart[0].removeLast()
-                niEnd[0].removeLast()
+                ni = copyni
+                checkIndexes(saySomething: "must check here! ")
+//                niEnd[0].removeLast()
             }
             
 //            print(process[process.index(before:process.endIndex)]) // the very last ..don't know why.
@@ -376,6 +483,7 @@ class ViewController: UIViewController {
                     if process.count <= 1{
                         tempDigits[pi][ni[pi]] = "0"
                         DS[pi][ni[pi]] = Double(tempDigits[pi][ni[pi]])!
+                        freshDI[pi][ni[pi]] = 1
                         process = "0"
                         printProcess()
                         break caseframe
@@ -383,22 +491,19 @@ class ViewController: UIViewController {
                     } // usual case.
                     else if process.count > 1{
                         process = removeLastChar(sentence: process)
-                        print("tempDigits : \(tempDigits)")
                         tempDigits[pi][ni[pi]] = removeLastChar(sentence: tempDigits[pi][ni[pi]])
-                        print("tempDigits : \(tempDigits)")
                         if let safeDigits = Double(tempDigits[pi][ni[pi]]){
-                            print("safeDigits : \(safeDigits)")
                             DS[pi][ni[pi]] = safeDigits
+                            freshDI[pi][ni[pi]] = 1
                         }
-                        
-                        print("tempDigits : \(tempDigits)")
                         
                         printProcess()
                         for k in numbers{
                             if process[process.index(before:process.endIndex)] == k{
                                 break caseframe // more numbers left, break loop. tempDigits도 수정해야함...
                             }
-                        }// cannot find number leftover
+                        }
+                        // if cannot find number leftover
                         freshDI[pi][ni[pi]] = 0
                         break caseframe
                     }
@@ -414,10 +519,46 @@ class ViewController: UIViewController {
                     break caseframe
                 }
             }
+            
+            case3_OpenParenthesis : if process[process.index(before:process.endIndex)] == "("{
+                process = removeLastChar(sentence: process)
+//                niStart[pi].removeLast()
+                
+                if indexPivotHelperIndicator[pi] > 1 {
+                    ni[pi] -= 1
+                }else if indexPivotHelperIndicator[pi] <= 1{
+                    indexPivotHelper[pi] = false
+                }
+                indexPivotHelperIndicator[pi] -= 1
+                
+                pi -= 1
+                positionOfParenthe[pi].removeLast()
+                indexPivotHelper.removeLast()
+                printProcess()
+                break caseframe
+            }
+            
+            case4_ClosingParenthesis : if process[process.index(before:process.endIndex)] == ")"{
+                checkIndexes(saySomething: "Closing Parenthesis ")
+               
+
+                process = removeLastChar(sentence: process)
+                pi += 1
+                //여기가 문제.
+                for i in 0 ... indexPivotHelperIndicator.count-1{
+                    if indexPivotHelperIndicator[i] != 0{
+                        piMax = i
+                    }
+                }
+                
+                checkIndexes(saySomething: "end of ClosingParenthesis")
+                printProcess()
+                break caseframe
+            }
         } // end of caseframe
 //        else if process == ""{ do nothing.
 //        }
-        checkIndexes(pointNumber: 1)
+        checkIndexes(saySomething: "end of deletePressed")
         isDeletePressed = true
     }
     
@@ -433,12 +574,17 @@ class ViewController: UIViewController {
     
     //MARK: - <#func setups
     func clear(){
+        print("clear !")
+        parentheNumber = [0]
+        whichParentheAreWe = [true]
+        indexPivotHelperIndicator = [0]
         isAnsPressed = false
         isDeletePressed = false
         
         piMax = 0
         indexPivotHelper = [false]
         ni = [0]
+        copyni = [0]
         pi = 0
         DS = [[0.0]]
         copyAnswer = [[300]]
@@ -446,6 +592,8 @@ class ViewController: UIViewController {
         copyfreshDI = [[0]]
         copypi = 0
         copyfreshAI = [[0]]
+        copyniStart = [[0]]
+        copyniEnd = [[0]]
         tempDigits = [[""]]
         printProcess()
         answer = [[300]] // for error check.
@@ -470,31 +618,47 @@ class ViewController: UIViewController {
         operationStorage[pi].append("")
     }
     
-    func printProcess(){
-        processView.text = process
-    }
-    
     func filterProcess(){
         notEmpty : if process != ""{
-            print(process)
             if process[process.index(before:process.endIndex)] == "+" || process[process.index(before:process.endIndex)] == "-" || process[process.index(before:process.endIndex)] == "x" || process[process.index(before:process.endIndex)] == "/"{
-                print("the very last one is operation \(process[process.index(before:process.endIndex)])")
-                ni[pi] -= 1
+                print("the last one is operation \(process[process.index(before:process.endIndex)])")
                 process = removeLastChar(sentence: process)
+                ni[pi] -= 1
                 printProcess()
                 break notEmpty
             }
-            if process[process.index(before:process.endIndex)] == "."{
+            else if process[process.index(before:process.endIndex)] == "."{
                 process = removeLastChar(sentence: process)
                 tempDigits[pi][ni[pi]] = removeLastChar(sentence: tempDigits[pi][ni[pi]])
                 
                 if let safeDigits = Double(tempDigits[pi][ni[pi]]){
-                    DS[pi][ni[pi]] = safeDigits}
-                
+                    DS[pi][ni[pi]] = safeDigits
+                    freshDI[pi][ni[pi]] = 1
+                }
                 printProcess()
                 break notEmpty
             }
         }
+    }
+    
+    func removeLastChar(sentence : String) -> String{
+        let str = sentence.dropLast()
+        let modifiedSentence = String(str)
+        return modifiedSentence
+    }
+    
+    func operinputSetup(tempOperInput : String, tempi : Int){
+        switch tempOperInput{
+        case "+" :  operationStorage[pi][tempi] = "+"
+        case "X" :  operationStorage[pi][tempi] = "x"
+        case "-" :  operationStorage[pi][tempi] = "-"
+        case "/" :  operationStorage[pi][tempi] = "/"
+        default: break
+        }
+        if  operationStorage[pi][tempi] == "x" ||  operationStorage[pi][tempi] == "/"{
+            muldiOperIndex[pi][tempi] = true}
+        else if operationStorage[pi][tempi] == "+" ||  operationStorage[pi][tempi] == "-"{
+            muldiOperIndex[pi][tempi] = false}
     }
     
     //print up to 6 floating places
@@ -514,106 +678,17 @@ class ViewController: UIViewController {
             }
         }
     }
-    
+
     @IBAction func ansPressed(_ sender: UIButton) {
         calculateAns()
     }
     
-    func operinputSetup(tempOperInput : String, tempi : Int){
-        switch tempOperInput{
-        case "+" :  operationStorage[pi][tempi] = "+"
-        case "X" :  operationStorage[pi][tempi] = "x"
-        case "-" :  operationStorage[pi][tempi] = "-"
-        case "/" :  operationStorage[pi][tempi] = "/"
-        default: break
-        }
-        if  operationStorage[pi][tempi] == "x" ||  operationStorage[pi][tempi] == "/"{
-            muldiOperIndex[pi][tempi] = true}
-        else if operationStorage[pi][tempi] == "+" ||  operationStorage[pi][tempi] == "-"{
-            muldiOperIndex[pi][tempi] = false}
+    func printProcess(){
+        processView.text = process
     }
     
-    @IBAction func parenthesisPressed(_ sender: UIButton) {
-        if let parenthe = sender.currentTitle{
-            if parenthe == "("{
-                if operationStorage[pi][ni[pi]] == "" && tempDigits[pi][ni[pi]] != ""{
-                    if tempDigits[pi][ni[pi]] == "0." || tempDigits[pi][ni[pi]] == "-0."{
-                        tempDigits[pi][ni[pi]] += "0"
-                        process += "0"
-                    }
-                    operationStorage[pi][ni[pi]] = "x"
-                    muldiOperIndex[pi][ni[pi]] = true
-                    
-                    process += operationStorage[pi][ni[pi]]
-                    answer[pi].append(200) // for error checking
-                    indexUpdate()
-                }
-                
-                process += parenthe
-                printProcess()
-                
-                indexIncreaseInParenthesisBefore(pi : pi)
-                
-                indexPivotHelper.append(false)
-                positionOfParenthe.append([0])
-                positionOfParenthe[pi].append(ni[pi])
-                tempDigits[pi][ni[pi]] = "paren"
-                
-                pi += 1
-                if pi > piMax{
-                    piMax = pi
-                    niStart.append([0])
-                    niEnd.append([0])
-                }
-                if indexPivotHelper[pi]{
-                    ni[pi] += 1
-                }
-                
-                indexIncreaseInParenthesisAfter(pi: pi)
-                niStart[pi].append(ni[pi])
-                indexPivotHelper[pi] = true
-                
-            }else if (pi != 0) && parenthe == ")"{
-                niEnd[pi].append(ni[pi])
-                pi -= 1
-                process += parenthe
-                tempDigits[pi][ni[pi]] += "closed"
-            }
-            printProcess()
-        }
-    }
-    
-    func indexIncreaseInParenthesisBefore(pi : Int){
-        ni.append(0)
-        tempDigits.append([""])
-        DS.append([0])
-        freshDI.append([0])
-        operationStorage.append([""])
-        muldiOperIndex.append([false])
-        answer.append([150])
-        freshAI.append([0])
-        DS[pi].append(0)
-        freshDI[pi].append(0)
-    }
-    
-    func indexIncreaseInParenthesisAfter(pi : Int){
-        tempDigits[pi].append("")
-        DS[pi].append(0)
-        freshDI[pi].append(0)
-        operationStorage.append([""])
-        muldiOperIndex.append([false])
-        operationStorage[pi].append("")
-        muldiOperIndex[pi].append(false)
-    }
-    
-    func removeLastChar(sentence : String) -> String{
-        let str = sentence.dropLast()
-        let modifiedSentence = String(str)
-        return modifiedSentence
-    }
-    
-    func checkIndexes(pointNumber : Double){
-        print(" \(pointNumber)")
+    func checkIndexes(saySomething : String){
+        print(" \(saySomething)")
         print("answer : \(answer)")
         print("freshDI : \(freshDI)")
         print("freshAI : \(freshAI)")
@@ -622,13 +697,14 @@ class ViewController: UIViewController {
         print("muldiOperIndex : \(muldiOperIndex)")
         print("ni : \(ni)")
         print("pi : \(pi)")
+        print("piMax : \(piMax)")
         print("niStartStorage : \(niStart)")
         print("niEndStorage : \(niEnd)")
         print("indexPivotHelper : \(indexPivotHelper)")
         print("positionOfParenthe : \(positionOfParenthe)")
         print("tempDigits : \(tempDigits)")
         print("process : \(process)")
-        print("pointNumber : \(pointNumber) end")
+        print(" \(saySomething) end")
     }
 }
 
