@@ -77,6 +77,7 @@ class ViewController: UIViewController {
             clear()
             processView.text = "0"
             process = ""
+            isAnsPressed = false
         }
         
         // if made number is not greater than it's limit
