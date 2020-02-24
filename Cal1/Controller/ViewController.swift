@@ -149,34 +149,30 @@ class ViewController: UIViewController {
     //MARK: - <#func operationPressed
     @IBAction func operationPressed(_ sender: UIButton){
         if let operInput = sender.currentTitle{
-            
-            if isAnsPressed// && !isDeletePressed
-            {
+            checkIndexes(saySomething: "operationPressed")
+            if isAnsPressed{
                 clear()
                 isAnsPressed = false
+                DS[0][0] = saveResult!
+                tempDigits[0][0] = String(saveResult!)
+                saveResult = nil
+                freshDI[0][0] = 1
+                if (DS[0][0] - Double(Int(DS[0][0])) == 0){ process = String(format : "%.0f", DS[0][0])}
+                else {process = String(DS[0][0])}
+                
+                operinputSetup(tempOperInput: operInput, tempi: ni[0])
+                process += operationStorage[0][0]
+                answer[0].append(200) // for error checking
+                indexUpdate()
+                printProcess()
             }
-            
-            if ni[pi] == 0{
-                if pi == 0 && saveResult != nil{
-                    
-                    DS[0][0] = saveResult!
-                    saveResult = nil
-                    freshDI[0][0] = 1
-                    if (DS[0][0] - Double(Int(DS[0][0])) == 0){ process = String(format : "%.0f", DS[0][0])}
-                    else {process = String(DS[0][0])}
-                    
-                    operinputSetup(tempOperInput: operInput, tempi: ni[0])
-                    process += operationStorage[0][0]
-                    answer[0].append(200) // for error checking
-                    indexUpdate()
-                    printProcess()
-                } // end if pi == 0 && ni == 0 && saveResult != nil{
-                else if tempDigits[pi][ni[pi]] == ""{
-                    if operInput != "-"{
-                    }
-                    else if operInput == "-"{
+            else if ni[pi] == 0{
+                if tempDigits[pi][ni[pi]] == ""{
+                    if operInput == "-"{
                         tempDigits[pi][ni[pi]] += "-"
                         process += "-"
+                    }
+                    else if operInput == "-"{
                     }
                 }
                 else if tempDigits[pi][ni[pi]] == "-"{
@@ -409,15 +405,25 @@ class ViewController: UIViewController {
     @IBAction func parenthesisPressed(_ sender: UIButton) {
         if let parenthe = sender.currentTitle{
             if parenthe == "("{
-                if isAnsPressed == true{
-                    tempDigits[0][0] = String(saveResult!)
+                if isAnsPressed{
+                    clear()
+                    isAnsPressed = false
+                    print("p1")
                     DS[0][0] = saveResult!
+                    tempDigits[0][0] = String(saveResult!) // is it needed?
+                    print("p2")
                     saveResult = nil
                     freshDI[0][0] = 1
-                    isAnsPressed = false
+                    
                     
                     if (DS[0][0] - Double(Int(DS[0][0])) == 0){ process = String(format : "%.0f", DS[0][0])}
                     else {process = String(DS[0][0])}
+                    operinputSetup(tempOperInput: "X", tempi: ni[0])
+                    process += operationStorage[0][0]
+                    answer[0].append(200) // for error checking
+                    indexUpdate()
+                    printProcess()
+                    
                     
                 }
                 if operationStorage[pi][ni[pi]] == "" && tempDigits[pi][ni[pi]] != ""{
