@@ -7,7 +7,7 @@ class ViewController: UIViewController {
     let numbers : [Character] = ["0","1","2","3","4","5","6","7","8","9","."]
     let operators : [Character] = ["+","-","x","/"]
     let parenthesis : [Character] = ["(",")"]
-    var isDeletePressed = false
+    //    var isDeletePressed = false
     var isAnsPressed = false
     var pi = 0 // index for parenthesis.
     var copypi = 0
@@ -73,7 +73,8 @@ class ViewController: UIViewController {
     
     //MARK: - <#func numberPressed
     @IBAction func numberPressed(_ sender: UIButton){
-        if isAnsPressed && !isDeletePressed{
+        if isAnsPressed //&& !isDeletePressed
+        {
             clear()
             processView.text = "0"
             process = ""
@@ -149,14 +150,15 @@ class ViewController: UIViewController {
     @IBAction func operationPressed(_ sender: UIButton){
         if let operInput = sender.currentTitle{
             
-            if isAnsPressed && !isDeletePressed{
+            if isAnsPressed// && !isDeletePressed
+            {
                 clear()
+                isAnsPressed = false
             }
             
             if ni[pi] == 0{
                 if pi == 0 && saveResult != nil{
-                    isAnsPressed = false//why? to prevent reexcxcute clear function in the numberPressed func.
-                    //                    clear()
+                    
                     DS[0][0] = saveResult!
                     saveResult = nil
                     freshDI[0][0] = 1
@@ -208,230 +210,272 @@ class ViewController: UIViewController {
             }
             printProcess()
         } //  end of if let operInput = sender.currentTitle
-        isAnsPressed = false
-        isDeletePressed = false
     }
     
     //MARK: - <#func calculation
     func calculateAns(){//{d
-        checkIndexes(saySomething: "calculateAnsPressed!!")
-        isAnsPressed = true // because of break keyword are in the code, locateded it at the beginning.
-        isDeletePressed = false
-        copyfreshDI = freshDI
-        copyfreshAI = freshAI
-        copyDS = DS
-        copypi = pi
-        copyAnswer = answer
-        copyniStart = niStart
-        copyniEnd = niEnd
-        copyni = ni
-        while pi > 0{
-            print("looking for error 1")
-//            niEnd[pi].append(ni[pi])
-            niEnd[pi].append(0)
-            print("looking for error 2")
+        filterProcess()
+        
+        if !isAnsPressed{ // ignore if it is pressed again.
+            checkIndexes(saySomething: "calculateAnsPressed!!")
             
-            niEnd[pi][parentheNumber[pi]] = ni[pi]// wrong index niEnd[pi][ ??? ] = ni[pi]
-            print("looking for error 3")
-            //
-            pi -= 1
-            process += ")"
-        }
-        
-        niStart[0].append(0)
-        niEnd[0].append(0)
-        niEnd[0][1] = ni[pi]
-        pi = piMax
-        
-        checkIndexes(saySomething: "calculate piLoop Start")
-//        checkIndexes(saySomething: <#T##String#>)
-        piLoop : while pi >= 0 {
-            for a in 1 ... niStart[pi].count-1{
-                for i in niStart[pi][a] ..< niEnd[pi][a]{
-                    // first for statement : for Operation == "x" or "/"
-                    if muldiOperIndex[pi][i]{
-                        if freshDI[pi][i] == 1 && freshDI[pi][i+1] == 1{
-                            //곱셈 , D[i]전항과 D[i+1]후항 존재, >> 두개 곱함.
-                            if operationStorage[pi][i] == "x" {
-                                answer[pi][i] = DS[pi][i] *  DS[pi][i+1]
-                            }else if  operationStorage[pi][i] == "/"{
-                                answer[pi][i] = DS[pi][i] /  DS[pi][i+1]
-                            }
-                            freshAI[pi][i] = 1 ; freshDI[pi][i] = 2 ; freshDI[pi][i+1] = 2
-                            result = answer[pi][i]
-                        }else if  freshDI[pi][i] == 2 && freshDI[pi][i+1] == 1{
-                            //곱셈, D[i]전항 존재 안할 때 >> A[i-1] * D[i+1]
-                            if  operationStorage[pi][i] == "x"{
-                                answer[pi][i] = answer[pi][i-1] *  DS[pi][i+1]
-                            }else if  operationStorage[pi][i] == "/"{
-                                answer[pi][i] = answer[pi][i-1] /  DS[pi][i+1]
-                            }
-                            freshAI[pi][i] = 1;freshAI[pi][i-1] = 2 ; freshDI[pi][i+1] = 2
-                            result = answer[pi][i];
-                        }
-                    }
-                } // end for i inniStart[pi][a] ...niEnd[pi][a]{
-                checkIndexes(saySomething: "multiply end")
-                for i in niStart[pi][a] ..< niEnd[pi][a]{
-                    if !muldiOperIndex[pi][i]{ //{b
-                        if freshDI[pi][i+1] == 1{
-                            //+ 연산 >> D[i+1] 존재
-                            if freshDI[pi][i] == 1{
-                                //+ 연산 >> D[i+1] 존재하는 >> D[i] 존재
-                                if  operationStorage[pi][i] == "+"{
-                                    answer[pi][i] =  DS[pi][i] +  DS[pi][i+1]
-                                } else if  operationStorage[pi][i] == "-"{
-                                    answer[pi][i] =  DS[pi][i] -  DS[pi][i+1]
+            //        isDeletePressed = false
+            
+            while pi > 0{
+                print("looking for error 1")
+                //            niEnd[pi].append(ni[pi])
+                niEnd[pi].append(0)
+                print("looking for error 2")
+                
+                niEnd[pi][parentheNumber[pi]] = ni[pi]// wrong index niEnd[pi][ ??? ] = ni[pi]
+                print("looking for error 3")
+                //
+                pi -= 1
+                process += ")"
+            }
+            
+            
+            
+            //        if !isAnsPressed {
+            niStart[0].append(0)
+            niEnd[0].append(0)
+            niEnd[0][1] = ni[pi]
+            //        }
+            copyfreshDI = freshDI
+            copyfreshAI = freshAI
+            copyDS = DS
+            copypi = pi // 굳이 필요 없을 것 같음 . 이때 pi 는 0이며 아래에서 다시 piMax 값을 받음 .
+            copyAnswer = answer
+            copyniStart = niStart
+            copyniEnd = niEnd
+            copyni = ni
+            
+            isAnsPressed = true
+            
+            pi = piMax
+            
+            checkIndexes(saySomething: "calculate piLoop Start")
+            //        checkIndexes(saySomething: <#T##String#>)
+            piLoop : while pi >= 0 {
+                print("c01")
+                checkIndexes(saySomething: "c01")
+                for a in 1 ... niStart[pi].count-1{
+                    print("c02")
+                    for i in niStart[pi][a] ..< niEnd[pi][a]{
+                        print("c03")
+                        // first for statement : for Operation == "x" or "/"
+                        if muldiOperIndex[pi][i]{
+                            if freshDI[pi][i] == 1 && freshDI[pi][i+1] == 1{
+                                //곱셈 , D[i]전항과 D[i+1]후항 존재, >> 두개 곱함.
+                                if operationStorage[pi][i] == "x" {
+                                    answer[pi][i] = DS[pi][i] *  DS[pi][i+1]
+                                }else if  operationStorage[pi][i] == "/"{
+                                    answer[pi][i] = DS[pi][i] /  DS[pi][i+1]
                                 }
                                 freshAI[pi][i] = 1 ; freshDI[pi][i] = 2 ; freshDI[pi][i+1] = 2
                                 result = answer[pi][i]
-                            } else if freshDI[pi][i] == 2{
-                                //+ 연산 >> D[i+1] 존재 >> D[i] 존재 ㄴㄴ
-                                for k in 1 ... i{
-                                    //freshAI[i-k] 찾음
-                                    if (freshAI[pi][i-k] == 1){
-                                        if  operationStorage[pi][i] == "+"{
-                                            answer[pi][i] = answer[pi][i-k] +  DS[pi][i+1]
-                                        }else if  operationStorage[pi][i] == "-"{
-                                            answer[pi][i] = answer[pi][i-k] -  DS[pi][i+1]
+                            }else if  freshDI[pi][i] == 2 && freshDI[pi][i+1] == 1{
+                                //곱셈, D[i]전항 존재 안할 때 >> A[i-1] * D[i+1]
+                                if  operationStorage[pi][i] == "x"{
+                                    answer[pi][i] = answer[pi][i-1] *  DS[pi][i+1]
+                                }else if  operationStorage[pi][i] == "/"{
+                                    answer[pi][i] = answer[pi][i-1] /  DS[pi][i+1]
+                                }
+                                freshAI[pi][i] = 1;freshAI[pi][i-1] = 2 ; freshDI[pi][i+1] = 2
+                                result = answer[pi][i];
+                            }
+                        }
+                    } // end for i inniStart[pi][a] ...niEnd[pi][a]{
+                    checkIndexes(saySomething: "multiply end")
+                    for i in niStart[pi][a] ..< niEnd[pi][a]{
+                        if !muldiOperIndex[pi][i]{ //{b
+                            if freshDI[pi][i+1] == 1{
+                                //+ 연산 >> D[i+1] 존재
+                                if freshDI[pi][i] == 1{
+                                    //+ 연산 >> D[i+1] 존재하는 >> D[i] 존재
+                                    if  operationStorage[pi][i] == "+"{
+                                        answer[pi][i] =  DS[pi][i] +  DS[pi][i+1]
+                                    } else if  operationStorage[pi][i] == "-"{
+                                        answer[pi][i] =  DS[pi][i] -  DS[pi][i+1]
+                                    }
+                                    freshAI[pi][i] = 1 ; freshDI[pi][i] = 2 ; freshDI[pi][i+1] = 2
+                                    result = answer[pi][i]
+                                } else if freshDI[pi][i] == 2{
+                                    //+ 연산 >> D[i+1] 존재 >> D[i] 존재 ㄴㄴ
+                                    for k in 1 ... i{
+                                        //freshAI[i-k] 찾음
+                                        if (freshAI[pi][i-k] == 1){
+                                            if  operationStorage[pi][i] == "+"{
+                                                answer[pi][i] = answer[pi][i-k] +  DS[pi][i+1]
+                                            }else if  operationStorage[pi][i] == "-"{
+                                                answer[pi][i] = answer[pi][i-k] -  DS[pi][i+1]
+                                            }
+                                            freshAI[pi][i] = 1;freshAI[pi][i-k] = 2 ; freshDI[pi][i+1] = 2
+                                            result = answer[pi][i]
                                         }
-                                        freshAI[pi][i] = 1;freshAI[pi][i-k] = 2 ; freshDI[pi][i+1] = 2
-                                        result = answer[pi][i]
                                     }
                                 }
-                            }
-                        }else if freshDI[pi][i+1] == 2{
-                            //  D[i+1] 존재 ㄴㄴ
-                            noLatterNum : for k in i ... ni[pi]-1 {
-                                //if freshAI[k+1] found
-                                if freshAI[pi][k+1] == 1 {
-                                    //  D[i+1] 존재 ㄴㄴ >>Ans[k](k :  i+1, ... ni) 존재 >>  DI[i] 존재
-                                    if freshDI[pi][i] == 1{
-                                        if  operationStorage[pi][i] == "+"{
-                                            answer[pi][i] =  DS[pi][i] + answer[pi][k+1]}
-                                        else if  operationStorage[pi][i] == "-"{
-                                            answer[pi][i] =  DS[pi][i] - answer[pi][k+1]}
-                                        freshAI[pi][i] = 1; freshDI[pi][i] = 2; freshAI[pi][k+1] = 2;
-                                        break noLatterNum
-                                        //+연산 >> D[i+1] 존재 ㄴㄴ >>Ans[k](k : i+1, i+2, ... ni-1 존재 >> D[i] 존재 ㄴㄴ
-                                    }else if freshDI[pi][i] == 2{
-                                        for j in 0 ... i{
-                                            if (freshAI[pi][i-j] == 1){
-                                                //+연산 >> D[i+1] 존재 ㄴㄴ >>Ans[k](k>i) 존재 >> D[i] 존재 ㄴㄴ >> A[i-j](i-j < i) 존재
-                                                if  operationStorage[pi][i] == "+"{
-                                                    answer[pi][i] = answer[pi][i-j] + answer[pi][k+1]
-                                                } else if  operationStorage[pi][i] == "-"{
-                                                    answer[pi][i] = answer[pi][i-j] - answer[pi][k+1]
+                            }else if freshDI[pi][i+1] == 2{
+                                //  D[i+1] 존재 ㄴㄴ
+                                noLatterNum : for k in i ... ni[pi]-1 {
+                                    //if freshAI[k+1] found
+                                    if freshAI[pi][k+1] == 1 {
+                                        //  D[i+1] 존재 ㄴㄴ >>Ans[k](k :  i+1, ... ni) 존재 >>  DI[i] 존재
+                                        if freshDI[pi][i] == 1{
+                                            if  operationStorage[pi][i] == "+"{
+                                                answer[pi][i] =  DS[pi][i] + answer[pi][k+1]}
+                                            else if  operationStorage[pi][i] == "-"{
+                                                answer[pi][i] =  DS[pi][i] - answer[pi][k+1]}
+                                            freshAI[pi][i] = 1; freshDI[pi][i] = 2; freshAI[pi][k+1] = 2;
+                                            break noLatterNum
+                                            //+연산 >> D[i+1] 존재 ㄴㄴ >>Ans[k](k : i+1, i+2, ... ni-1 존재 >> D[i] 존재 ㄴㄴ
+                                        }else if freshDI[pi][i] == 2{
+                                            for j in 0 ... i{
+                                                if (freshAI[pi][i-j] == 1){
+                                                    //+연산 >> D[i+1] 존재 ㄴㄴ >>Ans[k](k>i) 존재 >> D[i] 존재 ㄴㄴ >> A[i-j](i-j < i) 존재
+                                                    if  operationStorage[pi][i] == "+"{
+                                                        answer[pi][i] = answer[pi][i-j] + answer[pi][k+1]
+                                                    } else if  operationStorage[pi][i] == "-"{
+                                                        answer[pi][i] = answer[pi][i-j] - answer[pi][k+1]
+                                                    }
+                                                    freshAI[pi][i] = 1; freshAI[pi][i-j] = 2; freshAI[pi][k+1] = 2
+                                                    result = answer[pi][i]
+                                                    break noLatterNum
                                                 }
-                                                freshAI[pi][i] = 1; freshAI[pi][i-j] = 2; freshAI[pi][k+1] = 2
-                                                result = answer[pi][i]
-                                                break noLatterNum
                                             }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
-                } // end of all calculations. (for i in niStart[pi][a] ..< niEnd[pi][a])
-                checkIndexes(saySomething: "start obtain answer ")
-                if pi>0{
-                    for i in niStart[pi][a] ... niEnd[pi][a]{
-                        if niStart[pi][a] != niEnd[pi][a]{
-                            if freshAI[pi][i] == 1{
-                                DS[pi-1][positionOfParenthe[pi-1][a]] = answer[pi][i]
+                    } // end of all calculations. (for i in niStart[pi][a] ..< niEnd[pi][a])
+                    checkIndexes(saySomething: "start obtain answer ")
+                    if pi>0{
+                        print("c1")
+                        for i in niStart[pi][a] ... niEnd[pi][a]{
+                            print(checkIndexes(saySomething: "check!"))
+                            if niStart[pi][a] != niEnd[pi][a]{
+                                print("c3")
+                                if freshAI[pi][i] == 1{
+                                    print("c4")
+                                    DS[pi-1][positionOfParenthe[pi-1][a]] = answer[pi][i]
+                                    freshDI[pi-1][positionOfParenthe[pi-1][a]] = 1
+                                }
+                                print("c5")
+                            }else if niStart[pi][a] == niEnd[pi][a]{
+                                print("c6")
+                                DS[pi-1][positionOfParenthe[pi-1][a]] = DS[pi][i]
                                 freshDI[pi-1][positionOfParenthe[pi-1][a]] = 1
                             }
-                        }else if niStart[pi][a] == niEnd[pi][a]{
-                            DS[pi-1][positionOfParenthe[pi-1][a]] = DS[pi][i]
-                            freshDI[pi-1][positionOfParenthe[pi-1][a]] = 1
+                            print(" c7")
                         }
+                        print(" c8")
+                        checkIndexes(saySomething: "c8 check")
                     }
-                }
-                else if pi == 0{
-                    near : for i in niStart[0][1] ... niEnd[0][1]{
-                        if freshAI[0][i] == 1{
-                            result = answer[0][i]
-                            recordAnswers.append(answer[0][i])
-                            recordProcess.append(process)
-                            break near
+//                        print("check 9")
+                    else if pi == 0{
+                        print(" c10")
+                        near : for i in niStart[0][1] ... niEnd[0][1]{
+                            print("c11")
+                            if freshAI[0][i] == 1{
+                                print("c12")
+                                result = answer[0][i]
+                                recordAnswers.append(answer[0][i])
+                                recordProcess.append(process)
+                                break near
+                            }
+                            print("c13")
+                            if i == niEnd[0][1]{
+                                print("c14")
+                                result = DS[0][niStart[0][1]]
+                                recordAnswers.append(answer[0][i])
+                                recordProcess.append(process)
+                            }
                         }
-                        if i == niEnd[0][1]{
-                            result = DS[0][niStart[0][1]]
-                            recordAnswers.append(answer[0][i])
-                            recordProcess.append(process)
-                        }
+                        printProcess()
+                        floatingNumberDecider(ans: result!)
+                        checkIndexes(saySomething: "end of piLoop")
+                        break piLoop
                     }
-                    printProcess()
-                    floatingNumberDecider(ans: result!)
-                    filterProcess()
-                    checkIndexes(saySomething: "end of piLoop")
-                    break piLoop
-                }
-            } // end for a in 1 ... niStart[pi].count-1{
-            pi -= 1
-        } //end piLoop : while pi >= 0 {
+                    print("c17")
+                } // end for a in 1 ... niStart[pi].count-1{
+                print("c18")
+                pi -= 1
+            } //end piLoop : while pi >= 0 {
+            print("c19")
+        }
     } // end func calculateAns()
     
     @IBAction func parenthesisPressed(_ sender: UIButton) {
-            if let parenthe = sender.currentTitle{
-                if parenthe == "("{
-                    if operationStorage[pi][ni[pi]] == "" && tempDigits[pi][ni[pi]] != ""{
-                        if tempDigits[pi][ni[pi]] == "0." || tempDigits[pi][ni[pi]] == "-0."{
-                            tempDigits[pi][ni[pi]] += "0"
-                            process += "0"
-                        }
-                        operationStorage[pi][ni[pi]] = "x"
-                        muldiOperIndex[pi][ni[pi]] = true
-                        
-                        process += operationStorage[pi][ni[pi]]
-                        answer[pi].append(200) // for error checking
-                        indexUpdate()
-                    }
+        if let parenthe = sender.currentTitle{
+            if parenthe == "("{
+                if isAnsPressed == true{
+                    tempDigits[0][0] = String(saveResult!)
+                    DS[0][0] = saveResult!
+                    saveResult = nil
+                    freshDI[0][0] = 1
+                    isAnsPressed = false
                     
-                    process += parenthe
-                    printProcess()
+                    if (DS[0][0] - Double(Int(DS[0][0])) == 0){ process = String(format : "%.0f", DS[0][0])}
+                    else {process = String(DS[0][0])}
                     
-                    indexIncreaseInParenthesisBefore(pi : pi)
-                    
-                    indexPivotHelper.append(false)
-                    positionOfParenthe.append([0])
-                    positionOfParenthe[pi].append(ni[pi])
-                    tempDigits[pi][ni[pi]] = "paren"
-                    
-                    pi += 1
-                    indexPivotHelperIndicator[pi] += 1
-                    parentheNumber.append(0)
-                    parentheNumber[pi] += 1
-                    whichParentheAreWe[pi] = true
-                    
-                    if pi > piMax{
-                        piMax = pi
-                        niStart.append([0])
-                        niEnd.append([0])
-                    }
-                    if indexPivotHelper[pi]{
-                        ni[pi] += 1
-                        
-                    }
-                    
-                    indexIncreaseInParenthesisAfter(pi: pi)
-                    niStart[pi].append(ni[pi])
-                    indexPivotHelper[pi] = true
-                    
-                }else if (pi != 0) && parenthe == ")"{
-                    whichParentheAreWe[pi] = false
-    //                niEnd[pi].append(ni[pi])
-                    niEnd[pi].append(0)
-                    niEnd[pi][parentheNumber[pi]] = ni[pi] // wrong index niEnd[pi][ ??? ] = ni[pi]
-
-                    pi -= 1
-                    process += parenthe
-                    tempDigits[pi][ni[pi]] += "closed"
                 }
+                if operationStorage[pi][ni[pi]] == "" && tempDigits[pi][ni[pi]] != ""{
+                    if tempDigits[pi][ni[pi]] == "0." || tempDigits[pi][ni[pi]] == "-0."{
+                        tempDigits[pi][ni[pi]] += "0"
+                        process += "0"
+                    }
+                    operationStorage[pi][ni[pi]] = "x"
+                    muldiOperIndex[pi][ni[pi]] = true
+                    
+                    process += operationStorage[pi][ni[pi]]
+                    answer[pi].append(200) // for error checking
+                    indexUpdate()
+                }
+                
+                process += parenthe
                 printProcess()
+                
+                indexIncreaseInParenthesisBefore(pi : pi)
+                
+                indexPivotHelper.append(false)
+                positionOfParenthe.append([0])
+                positionOfParenthe[pi].append(ni[pi])
+                tempDigits[pi][ni[pi]] = "paren"
+                
+                pi += 1
+                indexPivotHelperIndicator[pi] += 1
+                parentheNumber.append(0)
+                parentheNumber[pi] += 1
+                whichParentheAreWe[pi] = true
+                
+                if pi > piMax{
+                    piMax = pi
+                    niStart.append([0])
+                    niEnd.append([0])
+                }
+                if indexPivotHelper[pi]{
+                    ni[pi] += 1
+                    
+                }
+                
+                indexIncreaseInParenthesisAfter(pi: pi)
+                niStart[pi].append(ni[pi])
+                indexPivotHelper[pi] = true
+                
+            }else if (pi != 0) && parenthe == ")"{
+                whichParentheAreWe[pi] = false
+                //                niEnd[pi].append(ni[pi])
+                niEnd[pi].append(0)
+                niEnd[pi][parentheNumber[pi]] = ni[pi] // wrong index niEnd[pi][ ??? ] = ni[pi]
+                
+                pi -= 1
+                process += parenthe
+                tempDigits[pi][ni[pi]] += "closed"
             }
+            printProcess()
         }
+    }
     
     func indexIncreaseInParenthesisBefore(pi : Int){
         whichParentheAreWe.append(false)
@@ -459,10 +503,12 @@ class ViewController: UIViewController {
     }
     
     @IBAction func deletePressed(_ sender: UIButton) {
+      
         checkIndexes(saySomething: "deleted Pressed!")
         caseframe : if process != ""{
-            print("isDeletedPressed :\(isDeletePressed), isAnsPressed : \(isAnsPressed) ")
-            if !isDeletePressed && isAnsPressed{
+            print(" isAnsPressed : \(isAnsPressed) ")
+            if isAnsPressed //&& !isDeletePressed &&
+            {
                 freshDI = copyfreshDI
                 freshAI = copyfreshAI
                 DS = copyDS
@@ -473,18 +519,24 @@ class ViewController: UIViewController {
                 niStart[0].removeLast()
                 ni = copyni
                 checkIndexes(saySomething: "must check here! ")
-//                niEnd[0].removeLast()
+                //                niEnd[0].removeLast()
             }
+            isAnsPressed = false
             
-//            print(process[process.index(before:process.endIndex)]) // the very last ..don't know why.
+            //            print(process[process.index(before:process.endIndex)]) // the very last ..don't know why.
             // if number deleted.
+            checkIndexes(saySomething: "dn1")
             case1_Number : for i in numbers{
                 if process[process.index(before:process.endIndex)] == i{
                     //when last digit is deleted
                     if process.count <= 1{
+                        print("dn2")
                         tempDigits[pi][ni[pi]] = "0"
+                        print("dn3")
                         DS[pi][ni[pi]] = Double(tempDigits[pi][ni[pi]])!
+                        print("dn4")
                         freshDI[pi][ni[pi]] = 1
+                        print("dn5")
                         process = "0"
                         printProcess()
                         break caseframe
@@ -492,12 +544,16 @@ class ViewController: UIViewController {
                     } // usual case.
                     else if process.count > 1{
                         process = removeLastChar(sentence: process)
+                        print("dn6")
                         tempDigits[pi][ni[pi]] = removeLastChar(sentence: tempDigits[pi][ni[pi]])
+                        print("dn7")
                         if let safeDigits = Double(tempDigits[pi][ni[pi]]){
+                            print("dn8")
                             DS[pi][ni[pi]] = safeDigits
+                            print("dn9")
                             freshDI[pi][ni[pi]] = 1
                         }
-                        
+                        print("dn10")
                         printProcess()
                         for k in numbers{
                             if process[process.index(before:process.endIndex)] == k{
@@ -511,6 +567,7 @@ class ViewController: UIViewController {
                 }
             }// end number case.
             
+            checkIndexes(saySomething: "do1")
             //if operation deleted.
             case2_Operator : for i in operators{
                 if process[process.index(before:process.endIndex)] == i{
@@ -520,11 +577,12 @@ class ViewController: UIViewController {
                     break caseframe
                 }
             }
-            
+            checkIndexes(saySomething: "dp1")
             case3_OpenParenthesis : if process[process.index(before:process.endIndex)] == "("{
                 process = removeLastChar(sentence: process)
-//                niStart[pi].removeLast()
+                //                niStart[pi].removeLast()
                 
+                piMax -= 1
                 if indexPivotHelperIndicator[pi] > 1 {
                     ni[pi] -= 1
                 }else if indexPivotHelperIndicator[pi] <= 1{
@@ -541,8 +599,8 @@ class ViewController: UIViewController {
             
             case4_ClosingParenthesis : if process[process.index(before:process.endIndex)] == ")"{
                 checkIndexes(saySomething: "Closing Parenthesis ")
-               
-
+                
+                
                 process = removeLastChar(sentence: process)
                 pi += 1
                 //여기가 문제.
@@ -557,10 +615,10 @@ class ViewController: UIViewController {
                 break caseframe
             }
         } // end of caseframe
-//        else if process == ""{ do nothing.
-//        }
+        //        else if process == ""{ do nothing.
+        //        }
         checkIndexes(saySomething: "end of deletePressed")
-        isDeletePressed = true
+        //        isDeletePressed = true
     }
     
     
@@ -580,7 +638,7 @@ class ViewController: UIViewController {
         whichParentheAreWe = [true]
         indexPivotHelperIndicator = [0]
         isAnsPressed = false
-        isDeletePressed = false
+        //        isDeletePressed = false
         
         piMax = 0
         indexPivotHelper = [false]
@@ -620,15 +678,52 @@ class ViewController: UIViewController {
     }
     
     func filterProcess(){
-        notEmpty : if process != ""{
-            if process[process.index(before:process.endIndex)] == "+" || process[process.index(before:process.endIndex)] == "-" || process[process.index(before:process.endIndex)] == "x" || process[process.index(before:process.endIndex)] == "/"{
-                print("the last one is operation \(process[process.index(before:process.endIndex)])")
+        
+        if process != ""{
+            case1_munusSign : if process[process.index(before:process.endIndex)] == "-" {
+                print("the last one is operation - \(process[process.index(before:process.endIndex)])")
                 process = removeLastChar(sentence: process)
                 ni[pi] -= 1
                 printProcess()
-                break notEmpty
+                //                break notEmpty
             }
-            else if process[process.index(before:process.endIndex)] == "."{
+        }
+        if process != ""{
+            case2_OpenParenthesis : if process[process.index(before:process.endIndex)] == "("{
+                piMax -= 1
+                process = removeLastChar(sentence: process)
+                //                niStart[pi].removeLast()
+                
+                if indexPivotHelperIndicator[pi] > 1 {
+                    ni[pi] -= 1
+                }else if indexPivotHelperIndicator[pi] <= 1{
+                    indexPivotHelper[pi] = false
+                }
+                indexPivotHelperIndicator[pi] -= 1
+                
+                pi -= 1
+                positionOfParenthe[pi].removeLast()
+                indexPivotHelper.removeLast()
+                printProcess()
+                //                break notEmpty // open parenthesis always follows operator.
+            }
+        }
+        
+        if process != ""{
+            case3_Operator : for i in operators{
+                if process[process.index(before:process.endIndex)] == i{
+                    process = removeLastChar(sentence: process)
+                    ni[pi] -= 1
+                    printProcess()
+                    //                    break notEmpty
+                }
+            }
+            checkIndexes(saySomething: "dp1")
+        }
+        
+        
+        if process != ""{
+            case4_dot : if process[process.index(before:process.endIndex)] == "."{
                 process = removeLastChar(sentence: process)
                 tempDigits[pi][ni[pi]] = removeLastChar(sentence: tempDigits[pi][ni[pi]])
                 
@@ -637,9 +732,11 @@ class ViewController: UIViewController {
                     freshDI[pi][ni[pi]] = 1
                 }
                 printProcess()
-                break notEmpty
+                //                break notEmpty
             }
         }
+        
+        
     }
     
     func removeLastChar(sentence : String) -> String{
@@ -679,7 +776,7 @@ class ViewController: UIViewController {
             }
         }
     }
-
+    
     @IBAction func ansPressed(_ sender: UIButton) {
         calculateAns()
     }
@@ -699,8 +796,8 @@ class ViewController: UIViewController {
         print("ni : \(ni)")
         print("pi : \(pi)")
         print("piMax : \(piMax)")
-        print("niStartStorage : \(niStart)")
-        print("niEndStorage : \(niEnd)")
+        print("niStart : \(niStart)")
+        print("niEnd : \(niEnd)")
         print("indexPivotHelper : \(indexPivotHelper)")
         print("positionOfParenthe : \(positionOfParenthe)")
         print("tempDigits : \(tempDigits)")
